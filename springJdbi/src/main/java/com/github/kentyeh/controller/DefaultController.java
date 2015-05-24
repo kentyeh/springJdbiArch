@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -65,6 +66,7 @@ public class DefaultController {
      * Response all users' data as json.
      *
      * @return
+     * @throws java.lang.Exception
      */
     @RequestMapping(value = "/admin/users", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     @ResponseBody
@@ -130,7 +132,11 @@ public class DefaultController {
      */
     @RequestMapping("/user/myinfo")
     public String myinfo(HttpServletRequest request, Principal principal) throws Exception {
-        request.setAttribute("member", memberManager.findMemberByPrimaryKey(getPrincipalId(principal)));
+        UsernamePasswordAuthenticationToken upat = (UsernamePasswordAuthenticationToken) principal;
+        CustomUserInfo cui = (CustomUserInfo) upat.getPrincipal();
+        request.setAttribute("member", cui.getMember());
+        //Alternative approach,另外一種作法
+        //request.setAttribute("member", memberManager.findMemberByPrimaryKey(getPrincipalId(principal)));
         return "index";
     }
 
