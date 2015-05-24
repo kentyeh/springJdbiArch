@@ -1,0 +1,17 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite thread-count="5" configfailurepolicy="skip" verbose="0" name="Unit Test Suit" skipfailedinvocationcounts="false" annotations="JDK">
+    <test verbose="1" name="Web Test" junit="false">
+        <classes>
+            <!--
+            -->       
+            <class name="com.github.kentyeh.controller.TestDefaultController"/>       
+        </classes>
+    </test>
+    <test verbose="1" name="Data Test" junit="false">
+        <classes>
+            <!--
+            -->      
+            <class name="com.github.kentyeh.manager.TestModel"/> 
+        </classes>
+    </test>
+</suite> 
