@@ -8,8 +8,8 @@
     <packaging>war</packaging>
 
     <name>springJdbi</name>
-    <description>Project Description Here,專案說明</description>
-    <url>http://localhost:8080/springJdbi</url>
+    <description>Spring and JDBI web archetype</description>
+    <url>https://github.com/kentyeh/springJdbiArch</url>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -46,7 +46,7 @@
             <id>yes2000</id>
             <name>Kent Yeh</name>
             <email>kent.yeh????@gmail.com</email>
-            <url>http://code.google.com/p/javawiki/wiki/StarupMaven?wl=zh-Hant</url>
+            <url>https://github.com/kentyeh</url>
             <roles>
                 <role>architect</role>
                 <role>developer</role>
@@ -60,9 +60,9 @@
     
     <!--Defaine your Srouce Management,設定源碼版本管理-->
     <scm>
-        <url>https://github.com/kentyeh/springJdbi</url>
-        <connection>scm:git:git://github.com/kentyeh/springJdbi.git</connection>
-        <developerConnection>scm:git:git@github.com:kentyeh/springJdbi.git</developerConnection>
+	<url>git@github.com:kentyeh/springJdbiArch.git</url>
+	<connection>scm:git:git@github.com:kentyeh/springJdbiArch.git</connection>
+	<developerConnection>scm:git:git@github.com:kentyeh/springJdbiArch.git</developerConnection>
     </scm>
     
     <dependencies>
