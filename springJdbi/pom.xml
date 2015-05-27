@@ -60,9 +60,9 @@
     
     <!--Defaine your Srouce Management,設定源碼版本管理-->
     <scm>
-	<url>git@github.com:kentyeh/springJdbiArch.git</url>
-	<connection>scm:git:git@github.com:kentyeh/springJdbiArch.git</connection>
-	<developerConnection>scm:git:git@github.com:kentyeh/springJdbiArch.git</developerConnection>
+        <url>git@github.com:kentyeh/springJdbiArch.git</url>
+        <connection>scm:git:git@github.com:kentyeh/springJdbiArch.git</connection>
+        <developerConnection>scm:git:git@github.com:kentyeh/springJdbiArch.git</developerConnection>
     </scm>
     
     <dependencies>

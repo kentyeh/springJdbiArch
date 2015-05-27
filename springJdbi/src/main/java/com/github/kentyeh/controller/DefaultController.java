@@ -132,11 +132,15 @@ public class DefaultController {
      */
     @RequestMapping("/user/myinfo")
     public String myinfo(HttpServletRequest request, Principal principal) throws Exception {
-        UsernamePasswordAuthenticationToken upat = (UsernamePasswordAuthenticationToken) principal;
-        CustomUserInfo cui = (CustomUserInfo) upat.getPrincipal();
-        request.setAttribute("member", cui.getMember());
-        //Alternative approach,另外一種作法
-        //request.setAttribute("member", memberManager.findMemberByPrimaryKey(getPrincipalId(principal)));
+        if (principal instanceof UsernamePasswordAuthenticationToken){
+            UsernamePasswordAuthenticationToken upat = (UsernamePasswordAuthenticationToken) principal;
+            CustomUserInfo cui = (CustomUserInfo) upat.getPrincipal();
+            request.setAttribute("member", cui.getMember());
+            //Alternative approach,另外一種作法
+            //request.setAttribute("member", memberManager.findMemberByPrimaryKey(getPrincipalId(principal)));
+        }else{
+            request.setAttribute("member", memberManager.findMemberByPrimaryKey(getPrincipalId(principal)));
+        }
         return "index";
     }
 
