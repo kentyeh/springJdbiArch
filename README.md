@@ -31,13 +31,13 @@ mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
 
 ### MISC
 
-* Remove folder: ./target and ./src/main/webapp/wro
+* Clean will remove folder: ./target and ./src/main/webapp/wro
 
   ```
-  mvn jetty:clean
+  mvn clean
   ```
 
-* Generate compressed css and javascript.
+* Regenerate compressed css and javascript if one of them to be changed or cleaned.
 
   ```
   mvn wro4j:run
