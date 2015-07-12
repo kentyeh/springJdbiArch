@@ -36,7 +36,7 @@
                 <c:if test="${not empty requestScope.errorMessage}">${requestScope.errorMessage}</c:if>
             </c:if>                                        
         </div>
-        <form action="${pageContext.request.contextPath}/j_spring_security_check" method="post" onsubmit="return doSubmit(this)">
+        <form action="<c:url value='j_spring_security_check'/>" method="post" onsubmit="return doSubmit(this)">
             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <table border="0" align="center" ><tbody>
                     <tr><td align="right"><label for="userid"><fmt:message key="account"/>:</label></td><td>

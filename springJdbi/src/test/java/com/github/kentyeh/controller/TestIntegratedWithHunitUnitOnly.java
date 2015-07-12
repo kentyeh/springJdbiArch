@@ -36,7 +36,7 @@ public class TestIntegratedWithHunitUnitOnly {
         this.httpPort = httpPort;
         logger.debug("http port is {}", httpPort);
         this.contextPath = contextPath;
-        webClient = new WebClient(BrowserVersion.FIREFOX_31);
+        webClient = new WebClient(BrowserVersion.CHROME);
         webClient.getOptions().setUseInsecureSSL(true);
     }
 

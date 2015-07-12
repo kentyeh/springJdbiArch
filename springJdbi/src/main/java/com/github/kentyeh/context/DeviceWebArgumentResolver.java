@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.MethodParameter;
 import org.springframework.mobile.device.Device;
+import org.springframework.mobile.device.DevicePlatform;
 import org.springframework.mobile.device.DeviceUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.support.WebArgumentResolver;
@@ -73,6 +74,7 @@ public class DeviceWebArgumentResolver implements WebArgumentResolver, Initializ
 
     static class MobileDevice implements Device {
 
+        @Override
         public boolean isMobile() {
             return true;
         }
@@ -85,6 +87,11 @@ public class DeviceWebArgumentResolver implements WebArgumentResolver, Initializ
         @Override
         public boolean isTablet() {
             return false;
+        }
+
+        @Override
+        public DevicePlatform getDevicePlatform() {
+            return DevicePlatform.ANDROID;
         }
     }
 }

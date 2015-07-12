@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Scope;
  * @author kent Yeh
  */
 @Configuration
-@ImportResource({"classpath:testContext.xml"})
+@ImportResource({"classpath:testContext.xml", "classpath:applicationContext-security.xml"})
 @ComponentScan("com.github.kentyeh.manager")
 public class TestContext {
     
@@ -49,5 +49,15 @@ public class TestContext {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public TestDao testDao() throws Exception {
         return dbi().open(TestDao.class);
+    }
+
+    @Bean
+    public CustomUserService customUserService() {
+        return new CustomUserService();
+    }
+
+    @Bean
+    public ValidationUtils validationUtils() {
+        return new ValidationUtils();
     }
 }

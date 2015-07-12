@@ -5,7 +5,7 @@ Sample arthetype form Spring,spring security and JNDI.
 generate sample project:
 ```
 mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
--DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=1.0
+-DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=2.0
 ```
 #### After generation####
 * Test Program
@@ -31,6 +31,12 @@ mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
 
 ### MISC
 
+* If you change [cucumber](https://cucumber.io/) step definitions, use follow command to regenerate function prototype.
+
+  ```
+  mvn -Pcuke initialize
+  ```
+
 * Clean will remove folder: ./target and ./src/main/webapp/wro
 
   ```
@@ -42,3 +48,4 @@ mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
   ```
   mvn wro4j:run
   ```
+

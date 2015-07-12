@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 @Test(groups = {"integrate"})
 public class TestIntegration {
 
-    private static Logger logger = LogManager.getLogger(TestIntegration.class);
+    private static final Logger logger = LogManager.getLogger(TestIntegration.class);
     private int httpPort = 80;
     private String contextPath = "";
     private WebDriver driver;

@@ -36,8 +36,8 @@
         <!--login-processing-url="/j_spring_security_check"/>-->
         <logout  invalidate-session="true" logout-url="/j_spring_security_logout" logout-success-url="/index"/>
         <session-management session-fixation-protection="none"/>
-        <remember-me key="ttxxx" user-service-ref="customUserService"/>
-        <anonymous key="ttxxx" username="anonymous"/>
+        <remember-me key="springJdbi" user-service-ref="customUserService"/>
+        <anonymous key="springJdbi" username="anonymous"/>
         <!--Http 403,404 report page. 權限不足403,404時導向網址-->
         <access-denied-handler error-page="/error?accessDeined=true"/>
         <!-- http://spring.io/blog/2013/08/21/spring-security-3-2-0-rc1-highlights-csrf-protection/ -->

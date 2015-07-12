@@ -14,8 +14,8 @@ import org.springframework.util.StringUtils;
  */
 public class DatePropertyEditor extends PropertyEditorSupport {
 
-    private static Logger logger = LogManager.getLogger(DatePropertyEditor.class);
-    private static Map<String, String> patterns = new HashMap<String, String>();
+    private static final Logger logger = LogManager.getLogger(DatePropertyEditor.class);
+    private static final Map<String, String> patterns = new HashMap<>();
 
     static {
         DatePropertyEditor.patterns.put("yyyyMMdd", "^\\d{8}$");

@@ -9,7 +9,7 @@ import org.skife.jdbi.v2.logging.FormattedLog;
  */
 public class JdbiLog extends FormattedLog {
 
-    private static org.apache.logging.log4j.Logger logger = LogManager.getLogger(JdbiLog.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(JdbiLog.class);
 
     @Override
     protected boolean isEnabled() {

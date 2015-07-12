@@ -9,6 +9,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -49,7 +50,7 @@ public class TestDefaultController extends AbstractTestNGSpringContextTests {
 
     @Test
     public void testListuser() throws Exception {
-        mockMvc.perform(post("/admin/users")).andDo(print()).andExpect(jsonPath("$.total", is(equalTo(memberManager.countUsers()))));
+        mockMvc.perform(post("/admin/users").with(user("admin").roles("ADMIN"))).andDo(print()).andExpect(jsonPath("$.total", is(equalTo(memberManager.countUsers()))));
     }
 
     @Test
@@ -57,12 +58,12 @@ public class TestDefaultController extends AbstractTestNGSpringContextTests {
         MvcResult mvcResult = mockMvc.perform(post("/user/myinfo").principal(new TestingAuthenticationToken("admin", null))).andReturn();
         Member member = (Member) mvcResult.getRequest().getAttribute("member");
         logger.debug("My account is \"{}\" and my name is {}", member.getAccount(), member.getName());
-        assertThat("Test UserInfo error ", "admin", is(equalTo(member.getAccount())));
+        assertThat("Test UserInfo error ", member.getAccount(), is(equalTo("admin")));
     }
 
     @Test
     public void testUserInfo() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post("/admin/user/{account}", "admin")).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post("/admin/user/{account}", "admin").with(user("admin").roles("ADMIN"))).andReturn();
         Member member = (Member) mvcResult.getRequest().getAttribute("member");
         logger.debug("account \"{}\" name is {}", member.getAccount(), member.getName());
         assertThat("Test UserInfo error ", "admin", is(equalTo(member.getAccount())));

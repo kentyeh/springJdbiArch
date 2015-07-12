@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 @ContextConfiguration(classes = com.github.kentyeh.context.TestContext.class)
 public class TestModel extends AbstractTestNGSpringContextTests {
 
-    private static Logger logger = LogManager.getLogger(TestModel.class);
+    private static final Logger logger = LogManager.getLogger(TestModel.class);
     @Autowired
     private TestMemberManager memberManager;
 
