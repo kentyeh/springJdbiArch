@@ -20,6 +20,11 @@
             </Arg>
         </Call>
         -->
+        <Call name="addCustomizer">
+            <Arg>
+                <New class="org.eclipse.jetty.server.SecureRequestCustomizer"/>
+            </Arg>
+        </Call>
     </New>
     <New id="sslContextFactory" class="org.eclipse.jetty.util.ssl.SslContextFactory">
         <Set name="KeyStorePath">
@@ -62,7 +67,7 @@
         </Call>
     </New>
     
-    <Call id="httpsConnector" name="addConnector">
+    <Call name="addConnector">
         <Arg>
             <New class="org.eclipse.jetty.server.ServerConnector">
                 <Arg name="server">

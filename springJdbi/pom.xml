@@ -4,7 +4,7 @@
 
     <groupId>com.github.kentyeh</groupId>
     <artifactId>springJdbi</artifactId>
-    <version>2.0</version>
+    <version>2.1</version>
     <packaging>war</packaging>
 
     <name>springJdbi</name>
@@ -17,11 +17,13 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.optimize>true</maven.compiler.optimize>
-        <spring.version>4.1.7.RELEASE</spring.version>
-        <spring.security.version>4.0.1.RELEASE</spring.security.version>
-        <hibernate.version>4.3.10.Final</hibernate.version>
-        <cucumber.version>1.2.3</cucumber.version>
-        <h2.version>1.4.187</h2.version>
+        <spring.version>4.2.1.RELEASE</spring.version>
+        <spring.security.version>4.0.2.RELEASE</spring.security.version>
+        <hibernate.version>5.0.1.Final</hibernate.version>
+        <cucumber.version>1.2.4</cucumber.version>
+        <h2.version>1.4.189</h2.version>
+        <capsule.version>1.0</capsule.version>
+        <atomikos.version>4.0.0M4</atomikos.version>
         <maven.test.skip>false</maven.test.skip>
         <context.path>${project.artifactId}</context.path>
         <log4j.version>2.3</log4j.version> 
@@ -115,7 +117,7 @@
         <dependency>
             <groupId>org.springframework.mobile</groupId>
             <artifactId>spring-mobile-device</artifactId>
-            <version>1.1.4.RELEASE</version>
+            <version>1.1.5.RELEASE</version>
         </dependency> 
         
         <!--Database Start-->
@@ -127,7 +129,7 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi</artifactId>
-            <version>2.62</version>
+            <version>2.63.1</version>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -137,7 +139,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>5.1.3.Final</version>
+            <version>5.2.1.Final</version>
         </dependency>
         <!--hibernate-validator 5.x require el-api-->
         <dependency>
@@ -221,7 +223,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.9.4</version>
+            <version>6.9.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -265,7 +267,7 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>2.46.0</version>
+            <version>2.47.1</version>
             <scope>test</scope>
         </dependency>
         
@@ -273,7 +275,7 @@
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>2.17</version>
+            <version>2.18</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -285,7 +287,7 @@
         <dependency>    
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.4.1</version>
+            <version>4.5.1</version>
             <scope>test</scope>
         </dependency>
         <!--For htmlunit: version conflict with openid4java -->
@@ -337,6 +339,128 @@
                                 <argument>-d</argument>
                                 <argument>${basedir}/src/test/resources/features</argument>
                             </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>runwar</id>
+            <build>
+                <plugins>
+                    <!-- Generate ssl key store for package, 產生key store 一併打包 -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>keytool-maven-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>genkey</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>generateKeyPair</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <keystore>${project.build.directory}/${project.artifactId}/WEB-INF/ssl.keystore</keystore>
+                            <dname>cn=${key.cn}</dname>
+                            <storepass>${key.pass}</storepass>
+                            <keypass>${key.pass}</keypass>
+                            <alias>${key.alias}</alias>
+                            <keyalg>RSA</keyalg>
+                            <validity>36525</validity>
+                        </configuration>
+                    </plugin>
+                    <!-- Package capsule necessary class and jar, 打包併入Capsule必要的類別與函式庫 -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.10</version>
+                        <executions>
+                            <execution>
+                                <id>unpack</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>co.paralleluniverse</groupId>
+                                            <artifactId>capsule</artifactId>
+                                            <version>${capsule.version}</version>
+                                            <type>jar</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}/${project.artifactId}</outputDirectory>
+                                            <includes>**/*.class</includes>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>co.paralleluniverse</groupId>
+                                            <artifactId>capsule-maven</artifactId>
+                                            <version>${capsule.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/${project.artifactId}</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Copy jetty config & h2 initial schmea to pacage, 打包Jetty設定檔與H2初始化之sql-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>2.7</version>
+                        <executions>
+                            <execution>
+                                <id>copy-jetty-config</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/${project.artifactId}/WEB-INF</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${basedir}/src/test/resources/runWar</directory>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>2.6</version>
+                        <configuration>
+                            <archive>
+                                <manifestEntries>
+                                    <Main-Class>Capsule</Main-Class>
+                                    <Premain-Class>Capsule</Premain-Class>
+                                    <Caplets>co.paralleluniverse:capsule-maven:${capsule.version}</Caplets>
+                                    <Application>org.eclipse.jetty:jetty-runner:9.2.13.v20150730</Application>
+                                    <Application-Class>org.eclipse.jetty.runner.Runner</Application-Class>
+                                    <System-Properties>catalina.home=$CAPSULE_DIR/WEB-INF org.jboss.logging.provider=log4j2</System-Properties>
+                                    <Dependencies>javax.transaction:jta:1.1 com.h2database:h2:${h2.version} com.atomikos:transactions-jta:${atomikos.version} com.atomikos:transactions-jdbc:${atomikos.version} org.slf4j:slf4j-simple:1.7.12</Dependencies>
+                                    <Allow-Snapshots>true</Allow-Snapshots>
+                                    <Min-Java-Version>1.7.0</Min-Java-Version>
+                                    <Args>--config $CAPSULE_DIR/WEB-INF/jetty.xml $CAPSULE_JAR</Args>
+                                </manifestEntries>
+                            </archive>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -491,7 +615,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.4</version> 
+                <version>3.5</version>
                 <executions>
                     <execution>
                         <goals>
@@ -512,7 +636,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.1</version>  
+                <version>3.0.2</version>
                 <executions>
                     <execution>
                         <id>check</id>
@@ -561,7 +685,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>9.3.0.RC0</version>
+                <version>9.2.13.v20150730</version>
                 <executions>
                     <execution>
                         <id>start-jetty</id>
@@ -591,12 +715,12 @@
                     <dependency>
                         <groupId>com.atomikos</groupId>
                         <artifactId>transactions-jdbc</artifactId>
-                        <version>4.0.0M4</version>
+                        <version>${atomikos.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>com.atomikos</groupId>
                         <artifactId>transactions-jta</artifactId>
-                        <version>4.0.0M4</version>
+                        <version>${atomikos.version}</version>
                     </dependency>
                 </dependencies>
                 <configuration>
@@ -707,7 +831,7 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-project-info-reports-plugin</artifactId>
-                            <version>2.8</version>
+                            <version>2.8.1</version>
                             <configuration>
                                 <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
                             </configuration>
@@ -776,7 +900,7 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-pmd-plugin</artifactId>
-                            <version>3.4</version>
+                            <version>3.5</version>
                             <configuration>
                                 <failOnViolation>false</failOnViolation>
                                 <linkXref>true</linkXref>
@@ -789,7 +913,7 @@
                         <plugin>
                             <groupId>org.codehaus.mojo</groupId>
                             <artifactId>findbugs-maven-plugin</artifactId>
-                            <version>3.0.1</version>
+                            <version>3.0.2</version>
                             <configuration>
                                 <failOnError>false</failOnError>
                                 <xmlOutputDirectory>${project.build.directory}/site</xmlOutputDirectory>

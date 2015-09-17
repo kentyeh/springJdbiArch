@@ -32,8 +32,8 @@
     </bannerRight>
     <body >
         <links>
-            <item name="開始使用Maven" href="http://code.google.com/p/javawiki/wiki/StarupMaven?wl=zh-Hant"/>
-            <item name="Spring Web快速開發" href="http://code.google.com/p/javawiki/wiki/StarupMaven?wl=zh-Hant"/>
+            <item name="開始使用Maven" href="https://github.com/kentyeh/mavenStartup/blob/master/README.md"/>
+            <item name="Spring Web快速開發" href="https://github.com/kentyeh/mavenStartup/blob/master/README.md"/>
         </links>
         
         <menu ref="reports"/>
