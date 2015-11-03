@@ -36,6 +36,13 @@ mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
   ```
   mvn -Pcuke initialize
   ```
+* If you with to build a runnable war (by  [capsule](http://www.capsule.io/))
+
+  ```
+  mvn -Prunwar package
+  java -jar yourFinalBuildPackage.war
+  ```
+
 
 * Clean will remove folder: ./target and ./src/main/webapp/wro
 
