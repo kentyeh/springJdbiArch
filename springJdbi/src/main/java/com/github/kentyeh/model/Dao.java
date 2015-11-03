@@ -16,7 +16,7 @@ import org.skife.jdbi.v2.unstable.BindIn;
  * @author Kent Yeh
  */
 @UseStringTemplate3StatementLocator //For In query syntax
-public interface Dao {
+public interface Dao extends AutoCloseable{
 
     @SqlQuery("SELECT * FROM appmember WHERE account = :account")
     @RegisterMapper(Member.MemberMapper.class)

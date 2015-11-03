@@ -43,7 +43,7 @@ public class ApplicationContext {
         return dbi;
     }
 
-    @Bean
+    @Bean(destroyMethod = "close")
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public Dao dao() throws Exception {
         return dbi().open(Dao.class);
