@@ -1,15 +1,15 @@
 package com.github.kentyeh.context;
 
-import org.apache.logging.log4j.LogManager;
+import lombok.extern.log4j.Log4j2;
 import org.skife.jdbi.v2.logging.FormattedLog;
 
 /**
  *
  * @author Kent Yeh
  */
+@Log4j2
 public class JdbiLog extends FormattedLog {
 
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(JdbiLog.class);
 
     @Override
     protected boolean isEnabled() {
@@ -18,6 +18,6 @@ public class JdbiLog extends FormattedLog {
 
     @Override
     protected void log(String string) {
-        logger.debug(string);
+        log.debug(string);
     }
 }

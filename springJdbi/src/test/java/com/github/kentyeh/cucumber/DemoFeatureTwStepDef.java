@@ -6,6 +6,7 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,9 +32,8 @@ import org.springframework.web.context.WebApplicationContext;
  */
 @WebAppConfiguration
 @ContextConfiguration(classes = com.github.kentyeh.context.TestContext.class)
+@Log4j2
 public class DemoFeatureTwStepDef {
-
-    private static final Logger logger = LogManager.getLogger(DemoFeatureTwStepDef.class);
 
     @Autowired
     protected WebApplicationContext wac;
@@ -48,12 +48,12 @@ public class DemoFeatureTwStepDef {
 
     @Given("^系統人員已完成登錄$")
     public void adminAuthoritied() throws Exception {
-        logger.debug("系統人員已完成登錄");
+        log.debug("系統人員已完成登錄");
     }
 
     @When("^系統人員點選查詢所有人員資訊$")
     public void adminWhen() {
-        logger.debug("系統人員點選查詢所有人員資訊");
+        log.debug("系統人員點選查詢所有人員資訊");
     }
 
     @Then("^顯示人員數應與所有人員數相等$")
@@ -63,12 +63,12 @@ public class DemoFeatureTwStepDef {
 
     @Given("^用戶\"([^\"]*)\"已完成登錄$")
     public void alreadyLogin(String user) throws Throwable {
-        logger.debug("{}已完成登錄", user);
+        log.debug("{}已完成登錄", user);
     }
 
     @When("^\"([^\"]*)\"點選我的個人資料$")
     public void clickMyInfo(String user) throws Throwable {
-        logger.debug("{}點選我的個人資料$", user);
+        log.debug("{}點選我的個人資料$", user);
     }
 
     @Then("^顯示\"([^\"]*)\"的個資$")

@@ -2,8 +2,7 @@ package com.github.kentyeh.controller;
 
 import com.github.kentyeh.manager.TestMemberManager;
 import com.github.kentyeh.model.Member;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -29,9 +28,9 @@ import org.testng.annotations.Test;
  */
 @WebAppConfiguration
 @ContextConfiguration(classes = com.github.kentyeh.context.TestContext.class)
+@Log4j2
 public class TestDefaultController extends AbstractTestNGSpringContextTests {
 
-    private static Logger logger = LogManager.getLogger(TestDefaultController.class);
     @Autowired
     WebApplicationContext wac;
     private MockMvc mockMvc;
@@ -57,7 +56,7 @@ public class TestDefaultController extends AbstractTestNGSpringContextTests {
     public void testMyinfo() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post("/user/myinfo").principal(new TestingAuthenticationToken("admin", null))).andReturn();
         Member member = (Member) mvcResult.getRequest().getAttribute("member");
-        logger.debug("My account is \"{}\" and my name is {}", member.getAccount(), member.getName());
+        log.debug("My account is \"{}\" and my name is {}", member.getAccount(), member.getName());
         assertThat("Test UserInfo error ", member.getAccount(), is(equalTo("admin")));
     }
 
@@ -65,7 +64,7 @@ public class TestDefaultController extends AbstractTestNGSpringContextTests {
     public void testUserInfo() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post("/admin/user/{account}", "admin").with(user("admin").roles("ADMIN"))).andReturn();
         Member member = (Member) mvcResult.getRequest().getAttribute("member");
-        logger.debug("account \"{}\" name is {}", member.getAccount(), member.getName());
+        log.debug("account \"{}\" name is {}", member.getAccount(), member.getName());
         assertThat("Test UserInfo error ", "admin", is(equalTo(member.getAccount())));
     }
 

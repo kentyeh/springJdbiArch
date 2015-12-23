@@ -8,6 +8,10 @@ import java.util.Date;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -15,53 +19,34 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
  *
  * @author Kent Yeh
  */
+@NoArgsConstructor
+@EqualsAndHashCode(of = "account", callSuper = false)
 public class Member implements Serializable {
 
     private static final long serialVersionUID = 395368712192880218L;
-   
+
     @NotNull(message = "{com.github.kentyeh.model.Member.account.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.account.notEmpty.message}")
+    @Getter
+    @Setter
     private String account;
     @NotNull(message = "{com.github.kentyeh.model.Member.passwd.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.passwd.notEmpty.message}")
+    @Getter
+    @Setter
     private String passwd;
     @NotNull(message = "{com.github.kentyeh.model.Member.name.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.name.notEmpty.message}")
+    @Getter
+    @Setter
     private String name;
     private String enabled = "Y";
     private Date birthday;
     private transient List<Authority> authorities;
 
-    public Member() {
-    }
-
     public Member(String account, String name) {
         this.account = account;
         this.name = name;
-    }
-
-    public String getAccount() {
-        return account;
-    }
-
-    public void setAccount(String account) {
-        this.account = account;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPasswd() {
-        return passwd;
-    }
-
-    public void setPasswd(String passwd) {
-        this.passwd = passwd;
     }
 
     public String getEnabled() {
@@ -87,7 +72,7 @@ public class Member implements Serializable {
     }
 
     public List<Authority> getAuthorities() {
-        if(authorities==null){
+        if (authorities == null) {
             authorities = new ArrayList<>();
         }
         return authorities;
@@ -106,25 +91,6 @@ public class Member implements Serializable {
             }
             this.authorities.addAll(authorities);
         }
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Member other = (Member) obj;
-        return this.account.equals(other.account);
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 29 * hash + this.account.hashCode();
-        return hash;
     }
 
     @Override

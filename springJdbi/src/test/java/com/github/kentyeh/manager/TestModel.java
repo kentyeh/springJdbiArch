@@ -1,8 +1,7 @@
 package com.github.kentyeh.manager;
 
 import com.github.kentyeh.model.Member;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -18,9 +17,9 @@ import org.testng.annotations.Test;
  */
 @WebAppConfiguration
 @ContextConfiguration(classes = com.github.kentyeh.context.TestContext.class)
+@Log4j2
 public class TestModel extends AbstractTestNGSpringContextTests {
 
-    private static final Logger logger = LogManager.getLogger(TestModel.class);
     @Autowired
     private TestMemberManager memberManager;
 
@@ -45,7 +44,7 @@ public class TestModel extends AbstractTestNGSpringContextTests {
         try {
             memberManager.raiseRollback(member);
         } catch (RuntimeException e) {
-            logger.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
         }
         member = memberManager.findMemberByPrimaryKey("admin");
         assertThat("DB not rollback!", member.getPasswd(), is(equalTo(orignPass)));

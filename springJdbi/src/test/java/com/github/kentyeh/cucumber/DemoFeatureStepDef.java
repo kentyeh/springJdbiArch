@@ -6,8 +6,7 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -31,9 +30,9 @@ import org.springframework.web.context.WebApplicationContext;
  */
 @WebAppConfiguration
 @ContextConfiguration(classes = com.github.kentyeh.context.TestContext.class)
+@Log4j2
 public class DemoFeatureStepDef {
 
-    private static final Logger logger = LogManager.getLogger(DemoFeatureStepDef.class);
 
     private MockMvc mockMvc;
 
@@ -49,12 +48,12 @@ public class DemoFeatureStepDef {
 
     @Given("^administrator has been authorized\\.$")
     public void administratorHasBeenAuthorized() throws Throwable {
-        logger.debug("Administrator has been authorized.");
+        log.debug("Administrator has been authorized.");
     }
 
     @When("^administrator click to view all users' infomation\\.$")
     public void administratorClickToViewAllUsersInfomation() throws Throwable {
-        logger.debug("Administrator click to view all users' infomation");
+        log.debug("Administrator click to view all users' infomation");
     }
 
     @Then("^return headcount should equals all user's amount\\.$")
@@ -64,12 +63,12 @@ public class DemoFeatureStepDef {
 
     @Given("^acouunt user \"([^\"]*)\" has already been authorized\\.$")
     public void acouuntUserHasAlreadyBeenAuthorized(String user) throws Throwable {
-        logger.debug("Acouunt user \"{}\" has already been authorized.", user);
+        log.debug("Acouunt user \"{}\" has already been authorized.", user);
     }
 
     @When("^\"([^\"]*)\" click MyInfo anchor\\.$")
     public void clickMyInfoAnchor(String user) throws Throwable {
-        logger.debug("\"{}\" click MyInfo anchor.", user);
+        log.debug("\"{}\" click MyInfo anchor.", user);
     }
 
     @Then("^display personal info to \"([^\"]*)\"$")

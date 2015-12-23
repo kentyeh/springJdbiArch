@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- @version $Revision$ ($Author$) $Date$ -->
 <project xmlns="http://maven.apache.org/DECORATION/1.3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.3.0 http://maven.apache.org/xsd/decoration-1.3.0.xsd"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.6.0 http://maven.apache.org/xsd/decoration-1.6.0.xsd"
          name="${project.artifactId}">
     <publishDate position="left" format="yyyy-MM-dd  'GMT'Z" />
     <version position="right"/>
@@ -39,8 +39,9 @@
         <menu ref="reports"/>
         
         <menu>
-            <item name="說明" href="readme.html"/>
-            <item name="常見問題" href="faq.html"/>
+	    <item name="黃瓜報表(Cucumber Report)" href="cucumber-reports/feature-overview.html" target="_blank"/>
+            <item name="說明(README)" href="readme.html"/>
+            <item name="常見問題(FAQ)" href="faq.html"/>
         </menu>
     </body>
   

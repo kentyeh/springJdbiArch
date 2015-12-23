@@ -7,8 +7,8 @@ import com.github.kentyeh.model.Member;
 import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,14 +25,15 @@ import org.springframework.util.StringUtils;
  */
 @Repository("memberManager")
 @Transactional(readOnly = true)
+@Log4j2
 public class MemberManager extends PropertyEditorSupport implements ApplicationContextAware {
 
-    private static final Logger logger = LogManager.getLogger(MemberManager.class);
-
+    @Getter
     private org.springframework.context.ApplicationContext context;
 
     @Autowired(required = false)
     @Qualifier("messageAccessor")
+    @Getter
     MessageSourceAccessor messageAccessor;
 
     @Autowired
@@ -50,7 +51,7 @@ public class MemberManager extends PropertyEditorSupport implements ApplicationC
         } catch (IllegalArgumentException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage(), ex);
+            log.error(ex.getMessage(), ex);
             setValue(null);
         }
     }
@@ -58,14 +59,6 @@ public class MemberManager extends PropertyEditorSupport implements ApplicationC
     @Override
     public String getAsText() {
         return getValue() == null ? "" : getValue().toString();
-    }
-
-    public org.springframework.context.ApplicationContext getContext() {
-        return context;
-    }
-
-    public MessageSourceAccessor getMessageAccessor() {
-        return messageAccessor;
     }
 
     protected Exception extractSQLException(Exception ex) {
@@ -119,7 +112,7 @@ public class MemberManager extends PropertyEditorSupport implements ApplicationC
                 }
             }
         } catch (Exception ex) {
-            logger.debug("{}{}", messageAccessor.getMessage("exception.newMember"), ex.getMessage());
+            log.debug("{}{}", messageAccessor.getMessage("exception.newMember"), ex.getMessage());
             throw new RuntimeException(ex.getMessage(), extractSQLException(ex));
         }
     }
@@ -136,10 +129,10 @@ public class MemberManager extends PropertyEditorSupport implements ApplicationC
                 auths.add(authority.getAuthority());
                 vu.validateMessage(authority, RuntimeException.class);
                 if (dao.findAuthorityByBean(authority) == null) {
-                    logger.debug("insert authority id = {}", dao.newAuthority(authority));
+                    log.debug("insert authority id = {}", dao.newAuthority(authority));
                 }
             }
-            logger.debug("Authorities remove count = {}", dao.removeAuthories(member.getAccount(), auths));
+            log.debug("Authorities remove count = {}", dao.removeAuthories(member.getAccount(), auths));
         } else {
             dao.removeAuthories(member.getAccount());
         }

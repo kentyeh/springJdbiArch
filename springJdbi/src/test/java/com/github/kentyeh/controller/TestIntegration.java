@@ -2,6 +2,7 @@ package com.github.kentyeh.controller;
 
 import com.github.kentyeh.context.WebDriverFactory;
 import java.io.IOException;
+import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -22,9 +23,9 @@ import org.testng.annotations.Test;
  * @author Kent Yeh
  */
 @Test(groups = {"integrate"})
+@Log4j2
 public class TestIntegration {
 
-    private static final Logger logger = LogManager.getLogger(TestIntegration.class);
     private int httpPort = 80;
     private String contextPath = "";
     private WebDriver driver;
@@ -33,7 +34,7 @@ public class TestIntegration {
     @Parameters({"http.port", "contextPath"})
     public void setup(@Optional("http.port") int httpPort, @Optional("contextPath") String contextPath) {
         this.httpPort = httpPort;
-        logger.debug("http port is {}", httpPort);
+        log.debug("http port is {}", httpPort);
         this.contextPath = contextPath;
         driver = WebDriverFactory.getInstance(WebDriverFactory.Brwoser.HTMLUNIT);
     }
@@ -55,7 +56,7 @@ public class TestIntegration {
     @Test
     public void testMyInfo() {
         String url = String.format("http://localhost:%d/%s/user/myinfo", httpPort, contextPath);
-        logger.debug("Test myinfo with {}", url);
+        log.debug("Test myinfo with {}", url);
         driver.get(url);
         WebElement form =  driver.findElement(By.tagName("form"));
         form.findElement(By.name("j_username")).sendKeys("admin");
@@ -68,7 +69,7 @@ public class TestIntegration {
     @Test(dependsOnMethods = "testMyInfo")
     public void logout() throws IOException {
         String url = String.format("http://localhost:%d/%s/", httpPort, contextPath);
-        logger.debug("Integration Test: logout with {}", url);
+        log.debug("Integration Test: logout with {}", url);
         driver.get(url);
         WebElement form =  driver.findElement(By.tagName("form"));
         form.submit();

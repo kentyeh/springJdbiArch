@@ -7,6 +7,7 @@ import java.security.Principal;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,25 +29,25 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Kent Yeh
  */
 @Controller
+@Log4j2
 public class DefaultController {
 
-    private static final Logger logger = LogManager.getLogger(DefaultController.class);
     @Autowired
     private MemberManager memberManager;
 
     @RequestMapping("/")
     public String root(Device device, Model model) {
         if (device.isMobile()) {
-            logger.debug("Connect devcie is mobile");
+            log.debug("Connect devcie is mobile");
             model.addAttribute("device", "mobile");
             //return "mobileIndex";
         } else if (device.isTablet()) {
-            logger.debug("Connect devcie is tablet");
+            log.debug("Connect devcie is tablet");
             model.addAttribute("device", "tablet");
             //return "tabletIndex";
         } else {
             model.addAttribute("device", "normal");
-            logger.debug("Connect device is normal device.");
+            log.debug("Connect device is normal device.");
         }
         return "index";
     }
@@ -116,7 +117,7 @@ public class DefaultController {
             model.addAttribute("member", member);
             memberManager.updateMember(member);
         } catch (Exception ex) {
-            logger.error(ex.getMessage(), ex);
+            log.error(ex.getMessage(), ex);
             model.addAttribute("errorMsg", ex.getMessage());
         }
         return "memberEditor";
@@ -132,13 +133,13 @@ public class DefaultController {
      */
     @RequestMapping("/user/myinfo")
     public String myinfo(HttpServletRequest request, Principal principal) throws Exception {
-        if (principal instanceof UsernamePasswordAuthenticationToken){
+        if (principal instanceof UsernamePasswordAuthenticationToken) {
             UsernamePasswordAuthenticationToken upat = (UsernamePasswordAuthenticationToken) principal;
             CustomUserInfo cui = (CustomUserInfo) upat.getPrincipal();
             request.setAttribute("member", cui.getMember());
             //Alternative approach,另外一種作法
             //request.setAttribute("member", memberManager.findMemberByPrimaryKey(getPrincipalId(principal)));
-        }else{
+        } else {
             request.setAttribute("member", memberManager.findMemberByPrimaryKey(getPrincipalId(principal)));
         }
         return "index";
