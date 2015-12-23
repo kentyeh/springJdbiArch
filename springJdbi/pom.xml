@@ -853,7 +853,7 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <!--Uncomment if jdk 7+-->
+                    <!--Uncomment if jdk 6~7.*-->
                     <!--argLine>-XX:-UseSplitVerifier</argLine-->
                     <locales>zh_TW</locales>
                     <reportPlugins>

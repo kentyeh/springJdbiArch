@@ -3,8 +3,6 @@ package com.github.kentyeh.controller;
 import com.github.kentyeh.context.WebDriverFactory;
 import java.io.IOException;
 import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
