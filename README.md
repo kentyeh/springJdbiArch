@@ -5,7 +5,7 @@ Sample arthetype form Spring,spring security and JNDI.
 generate sample project:
 ```
 mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
--DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=2.3
+-DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=2.4
 ```
 #### After generation####
 * Test Program

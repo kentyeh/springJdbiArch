@@ -2,12 +2,14 @@ package com.github.kentyeh.model;
 
 import java.util.Collection;
 import java.util.List;
+import me.shakiba.jdbi.annotation.AnnoMapperFactory;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.GetGeneratedKeys;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapperFactory;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.skife.jdbi.v2.unstable.BindIn;
 
@@ -19,19 +21,19 @@ import org.skife.jdbi.v2.unstable.BindIn;
 public interface Dao extends AutoCloseable{
 
     @SqlQuery("SELECT * FROM appmember WHERE account = :account")
-    @RegisterMapper(Member.MemberMapper.class)
+    @RegisterMapperFactory(AnnoMapperFactory.class)
     Member findMemberByPrimaryKey(@Bind("account") String account);
 
     @SqlQuery("SELECT * FROM appmember WHERE enabled = 'Y' ORDER BY account")
-    @RegisterMapper(Member.MemberMapper.class)
+    @RegisterMapperFactory(AnnoMapperFactory.class)
     List<Member> findAvailableUsers();
     
     @SqlQuery("SELECT * FROM appmember ORDER BY account")
-    @RegisterMapper(Member.MemberMapper.class)
+    @RegisterMapperFactory(AnnoMapperFactory.class)
     List<Member> findAllUsers();
 
     @SqlQuery("SELECT * FROM authorities WHERE account = :account")
-    @RegisterMapper(Authority.Authorityapper.class)
+    @RegisterMapperFactory(AnnoMapperFactory.class)
     List<Authority> findAuthorityByAccount(@Bind("account") String account);
 
     @SqlUpdate("UPDATE appmember SET passwd = :newPass WHERE account = :account AND passwd= :oldPass")
@@ -51,7 +53,7 @@ public interface Dao extends AutoCloseable{
     int removeMember(@Bind("account") String account);
 
     @SqlQuery("SELECT * FROM authorities WHERE account = :account AND authority= :authority")
-    @RegisterMapper(Authority.Authorityapper.class)
+    @RegisterMapperFactory(AnnoMapperFactory.class)
     Authority findAuthorityByBean(@BindBean Authority authority);
 
     @SqlUpdate("INSERT INTO authorities(account,authority) values( :account, :authority)")

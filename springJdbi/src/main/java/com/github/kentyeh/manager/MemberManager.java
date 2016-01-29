@@ -17,16 +17,14 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 /**
  *
  * @author Kent Yeh
  */
 @Repository("memberManager")
-@Transactional(readOnly = true)
 @Log4j2
-public class MemberManager extends PropertyEditorSupport implements ApplicationContextAware {
+public class MemberManager extends AbstractDaoManager<String, Member> implements ApplicationContextAware {
 
     @Getter
     private org.springframework.context.ApplicationContext context;
@@ -45,20 +43,8 @@ public class MemberManager extends PropertyEditorSupport implements ApplicationC
     }
 
     @Override
-    public void setAsText(String text) throws IllegalArgumentException {
-        try {
-            setValue(StringUtils.hasText(text) ? findMemberByPrimaryKey(text) : null);
-        } catch (IllegalArgumentException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
-            setValue(null);
-        }
-    }
-
-    @Override
-    public String getAsText() {
-        return getValue() == null ? "" : getValue().toString();
+    public String text2Key(String text) {
+        return text;
     }
 
     protected Exception extractSQLException(Exception ex) {
@@ -78,8 +64,9 @@ public class MemberManager extends PropertyEditorSupport implements ApplicationC
         return found ? (java.sql.SQLException) result : ex;
     }
 
+    @Override
     @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
-    public Member findMemberByPrimaryKey(String account) throws Exception {
+    public Member findByPrimaryKey(String account) {
         Dao dao = context.getBean(Dao.class);
         Member member = dao.findMemberByPrimaryKey(account);
         if (member != null) {

@@ -39,14 +39,14 @@ public class TestModel extends AbstractTestNGSpringContextTests {
 
     @Test
     public void testRollback() throws Exception {
-        Member member = memberManager.findMemberByPrimaryKey("admin");
+        Member member = memberManager.findByPrimaryKey("admin");
         String orignPass = member.getPasswd();
         try {
             memberManager.raiseRollback(member);
         } catch (RuntimeException e) {
             log.error(e.getMessage(), e);
         }
-        member = memberManager.findMemberByPrimaryKey("admin");
+        member = memberManager.findByPrimaryKey("admin");
         assertThat("DB not rollback!", member.getPasswd(), is(equalTo(orignPass)));
     }
 }

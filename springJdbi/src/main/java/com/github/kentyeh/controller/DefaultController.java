@@ -138,7 +138,7 @@ public class DefaultController {
             //Alternative approach,另外一種作法
             //request.setAttribute("member", memberManager.findMemberByPrimaryKey(getPrincipalId(principal)));
         } else {
-            request.setAttribute("member", memberManager.findMemberByPrimaryKey(getPrincipalId(principal)));
+            request.setAttribute("member", memberManager.findByPrimaryKey(getPrincipalId(principal)));
         }
         return "index";
     }
@@ -155,6 +155,8 @@ public class DefaultController {
         if (account != null) {
             request.setAttribute("member", account);
         }
+        log.error("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  member is {} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",account);
+
         return "index";
     }
 

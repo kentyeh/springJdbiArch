@@ -3,6 +3,8 @@ package com.github.kentyeh.model;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Data;
@@ -14,13 +16,17 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
  * @author Kent Yeh
  */
 @Data
+@Entity
 @EqualsAndHashCode(of = "aid", callSuper = false)
 public class Authority implements Serializable {
 
     private static final long serialVersionUID = -7454760999684175357L;
+    @Column
     private long aid = -1;
+    @Column
     @NotNull
     private String authority;
+    @Column
     private String account;
 
     public Authority() {
@@ -34,14 +40,5 @@ public class Authority implements Serializable {
 
     public boolean same(Authority other) {
         return other == null ? false : this.authority.equals(other.getAuthority());
-    }
-
-    public static class Authorityapper implements ResultSetMapper<Authority> {
-
-        @Override
-        public Authority map(int i, ResultSet rs, StatementContext sc) throws SQLException {
-            return new Authority(rs.getInt("aid"), rs.getString("authority"), rs.getString("account"));
-        }
-
     }
 }

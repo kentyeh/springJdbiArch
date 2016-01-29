@@ -43,7 +43,7 @@ public class CustomUserService implements UserDetailsService, AuthenticationUser
     public UserDetails loadUserByUsername(String account) throws UsernameNotFoundException {
         //Find user data,找到用戶資料
         try {
-            Member member = memberManager.findMemberByPrimaryKey(account);
+            Member member = memberManager.findByPrimaryKey(account);
             //Decide user's roles,自行決定如何給角色
             if (member == null) {
                 throw new UsernameNotFoundException("");

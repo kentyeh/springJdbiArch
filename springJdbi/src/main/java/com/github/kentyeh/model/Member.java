@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
@@ -19,6 +21,7 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
  *
  * @author Kent Yeh
  */
+@Entity
 @NoArgsConstructor
 @EqualsAndHashCode(of = "account", callSuper = false)
 public class Member implements Serializable {
@@ -29,18 +32,23 @@ public class Member implements Serializable {
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.account.notEmpty.message}")
     @Getter
     @Setter
+    @Column
     private String account;
     @NotNull(message = "{com.github.kentyeh.model.Member.passwd.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.passwd.notEmpty.message}")
     @Getter
     @Setter
+    @Column
     private String passwd;
     @NotNull(message = "{com.github.kentyeh.model.Member.name.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.name.notEmpty.message}")
     @Getter
     @Setter
+    @Column
     private String name;
+    @Column
     private String enabled = "Y";
+    @Column
     private Date birthday;
     private transient List<Authority> authorities;
 
@@ -96,20 +104,5 @@ public class Member implements Serializable {
     @Override
     public String toString() {
         return String.format("%s[%s]", name, account);
-    }
-
-    public static class MemberMapper implements ResultSetMapper<Member> {
-
-        @Override
-        public Member map(int i, ResultSet rs, StatementContext sc) throws SQLException {
-            Member res = new Member();
-            res.setAccount(rs.getString("account"));
-            res.setName(rs.getString("name"));
-            res.setPasswd(rs.getString("passwd"));
-            res.setEnabled(rs.getString("enabled"));
-            res.setBirthday(rs.getDate("birthday"));
-            return res;
-        }
-
     }
 }
