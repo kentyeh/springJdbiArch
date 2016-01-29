@@ -19,15 +19,16 @@
         <maven.compiler.optimize>true</maven.compiler.optimize>
         <spring.version>4.2.4.RELEASE</spring.version>
         <spring.security.version>4.0.3.RELEASE</spring.security.version>
-        <hibernate.version>5.0.3.Final</hibernate.version>
+        <hibernate.version>5.0.7.Final</hibernate.version>
         <cucumber.version>1.2.4</cucumber.version>
-        <h2.version>1.4.190</h2.version>
+        <h2.version>1.4.191</h2.version>
         <capsule.version>1.0</capsule.version>
         <atomikos.version>4.0.0M4</atomikos.version>
         <maven.test.skip>false</maven.test.skip>
         <context.path>${project.artifactId}</context.path>
-        <log4j.version>2.4.1</log4j.version> 
-        <disruptor.version>3.3.2</disruptor.version>
+        <log4j.version>2.5</log4j.version> 
+        <disruptor.version>3.3.4</disruptor.version>
+        <surefire.version>2.19.1</surefire.version>
         <jndi.dsname>jdbc/JNDIDS</jndi.dsname>
         <key.alias>tomcat</key.alias>
         <key.cn>localhost</key.cn>
@@ -129,7 +130,12 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi</artifactId>
-            <version>2.69-alpha</version>
+            <version>2.71</version>
+        </dependency>
+        <dependency>
+            <groupId>me.shakiba.jdbi</groupId>
+            <artifactId>jdbi-annotation</artifactId>
+            <version>0.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -139,7 +145,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>5.2.2.Final</version>
+            <version>5.2.3.Final</version>
         </dependency>
         <!--hibernate-validator 5.x require el-api-->
         <dependency>
@@ -228,7 +234,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.9.9</version>
+            <version>6.9.10</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -272,7 +278,7 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>2.48.2</version>
+            <version>2.50.0</version>
             <scope>test</scope>
         </dependency>
         
@@ -490,7 +496,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.5</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -539,7 +545,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19</version>
+                <version>${surefire.version}</version>
                 <executions>
                     <execution>
                         <id>integration-test</id>
@@ -576,7 +582,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19</version>
+                <version>${surefire.version}</version>
                 <configuration>
                     <testFailureIgnore>true</testFailureIgnore>
                     <systemProperties>
@@ -714,7 +720,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>9.2.13.v20150730</version>
+                <version>9.2.14.v20151106</version>
                 <executions>
                     <execution>
                         <id>start-jetty</id>
@@ -954,7 +960,7 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-surefire-report-plugin</artifactId>
-                            <version>2.19</version>
+                            <version>${surefire.version}</version>
                             <reportSets>
                                 <reportSet>
                                     <id>integration-tests</id>
