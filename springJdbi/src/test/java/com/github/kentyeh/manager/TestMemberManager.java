@@ -28,7 +28,7 @@ public class TestMemberManager extends MemberManager {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void raiseRollback(Member member) throws Exception {
         TestDao dao = getContext().getBean(TestDao.class);
-        dao.changePasswd(member.getAccount(), member.getPasswd(), "guesspass");
+        dao.changePasswd(member.getAccount(), member.getPassword(), "guesspass");
         member.setName(null);
         dao.updateMember(member);
     }

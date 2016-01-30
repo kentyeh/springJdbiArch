@@ -52,7 +52,7 @@
         <table border="1" align="center">
             <tr><th><fmt:message key="account"/></th><th><fmt:message key="password"/></th></tr>
           <c:forEach var="member" items="${members}">
-            <tr><td>${member.account}</td><td>${member.passwd}</td></tr>
+            <tr><td>${member.account}</td><td>${member.password}</td></tr>
           </c:forEach>
         </table>
     </center></body>

@@ -40,10 +40,10 @@ public interface Dao extends AutoCloseable{
     int changePasswd(@Bind("account") String account, @Bind("oldPass") String oldPass, @Bind("newPass") String newPass);
 
     @SqlUpdate("INSERT INTO appmember(account,name,passwd,enabled,birthday)"
-            + "values( :account , :name , :passwd , :enabled , :birthday )")
+            + "values( :account , :name , :password , :enabled , :birthday )")
     void newMember(@BindBean Member member);
 
-    @SqlUpdate("UPDATE appmember SET name= :name ,enabled= :enabled ,birthday= :birthday WHERE account= :account")
+    @SqlUpdate("UPDATE appmember SET name= :name ,passwd= :password,enabled= :enabled ,birthday= :birthday WHERE account= :account")
     int  updateMember(@BindBean Member member);
     
     @SqlQuery("SELECT passwd FROM appmember WHERE account= :account")

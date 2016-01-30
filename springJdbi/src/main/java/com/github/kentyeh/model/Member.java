@@ -38,8 +38,8 @@ public class Member implements Serializable {
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.passwd.notEmpty.message}")
     @Getter
     @Setter
-    @Column
-    private String passwd;
+    @Column(name = "passwd")
+    private String password;
     @NotNull(message = "{com.github.kentyeh.model.Member.name.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.name.notEmpty.message}")
     @Getter

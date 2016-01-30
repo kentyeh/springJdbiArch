@@ -35,7 +35,7 @@
         <key.pass>password</key.pass>
         <test.http.port>8080</test.http.port>
         <test.ssl.port>8443</test.ssl.port>
-        <findbugs.fork>false</findbugs.fork>
+        <findbugs.fork>true</findbugs.fork>
         <wroFolder>${basedir}/src/main/webapp/wro</wroFolder>
     </properties>
     

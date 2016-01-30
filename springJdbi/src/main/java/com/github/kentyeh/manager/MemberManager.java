@@ -105,23 +105,27 @@ public class MemberManager extends AbstractDaoManager<String, Member> implements
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void updateMember(Member member) throws Exception {
+    public boolean updateMember(Member member) throws Exception {
         Dao dao = context.getBean(Dao.class);
         vu.validateMessage(member, RuntimeException.class);
-        dao.updateMember(member);
-        List<Authority> authories = member.getAuthorities();
-        if (authories != null && !authories.isEmpty()) {
-            List<String> auths = new ArrayList<>();
-            for (Authority authority : authories) {
-                auths.add(authority.getAuthority());
-                vu.validateMessage(authority, RuntimeException.class);
-                if (dao.findAuthorityByBean(authority) == null) {
-                    log.debug("insert authority id = {}", dao.newAuthority(authority));
+        if (dao.updateMember(member) == 1) {
+            List<Authority> authories = member.getAuthorities();
+            if (authories != null && !authories.isEmpty()) {
+                List<String> auths = new ArrayList<>();
+                for (Authority authority : authories) {
+                    auths.add(authority.getAuthority());
+                    vu.validateMessage(authority, RuntimeException.class);
+                    if (dao.findAuthorityByBean(authority) == null) {
+                        log.debug("insert authority id = {}", dao.newAuthority(authority));
+                    }
                 }
+                log.debug("Authorities remove count = {}", dao.removeAuthories(member.getAccount(), auths));
+            } else {
+                dao.removeAuthories(member.getAccount());
             }
-            log.debug("Authorities remove count = {}", dao.removeAuthories(member.getAccount(), auths));
+            return true;
         } else {
-            dao.removeAuthories(member.getAccount());
+            return false;
         }
     }
 

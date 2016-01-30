@@ -50,7 +50,7 @@
                 <thead>
                     <c:if test="${not empty errorMsg}"><tr><th colspan="2" style="color: red"><fmt:message key='exception'/>:${errorMsg}</th></tr></c:if>
                     <tr><th colspan="2" style="text-align: center"><input type="hidden" name="account" value="${member.account}">${member.account}
-                        <input type="hidden" name="passwd" value="********"></th></tr></thead>
+                        <input type="hidden" name="password" value="********"></th></tr></thead>
                 <tbody>
                     <tr><td colspan="2" style="text-align: center"><input type="submit"/></td></tr>
                     <tr><td><fmt:message key="name"/>:</td><td><input type="text" name="name" value="${member.name}" width="20" maxlength="16"/></td></tr>
