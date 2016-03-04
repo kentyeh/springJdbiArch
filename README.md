@@ -59,7 +59,7 @@ mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
   mvn wro4j:run
   ```
 
-* Find your code problems after compiled.(by [FindBugs](http://findbugs.sourceforge.net/).
+* Find your code problems after compiled.(by [FindBugs](http://findbugs.sourceforge.net/)).
 
   ```
   mvn test-compile findbugs:gui
