@@ -2,7 +2,7 @@
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.kentyeh/springJdbiArch/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.kentyeh/springJdbiArch)
 
-Sample arthetype form [Spring](http://projects.spring.io/spring-framework/),[spring security](http://projects.spring.io/spring-security/) and [JNDI](http://jdbi.org/).
+Sample arthetype form [Spring](http://projects.spring.io/spring-framework/),[spring security](http://projects.spring.io/spring-security/) and [JDBI](http://jdbi.org/).
 
 ## Usage ###
 generate sample project:
