@@ -236,11 +236,11 @@
                 </Call>
                 <Call name="setProperty">
                     <Arg>com.atomikos.icatch.output_dir</Arg>
-                    <Arg>${project.build.directory}/logs/</Arg>
+                    <Arg><SystemProperty name="catalina.home"/>/logs/</Arg>
                 </Call>
                 <Call name="setProperty">
                     <Arg>com.atomikos.icatch.log_base_dir</Arg>
-                    <Arg>${project.build.directory}/logs/</Arg>
+                    <Arg><SystemProperty name="catalina.home"/>/logs/</Arg>
                 </Call>
                 <Call name="setProperty">
                     <Arg>com.atomikos.icatch.enable_logging</Arg>

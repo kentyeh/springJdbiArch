@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 
 /**
  *
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
  */
 @Configuration
 @ImportResource("classpath:applicationContext.xml")
+@EnableHazelcastHttpSession
 public class ApplicationContext {
 
     @Autowired

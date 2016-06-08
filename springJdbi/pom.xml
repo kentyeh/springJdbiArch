@@ -4,7 +4,7 @@
 
     <groupId>com.github.kentyeh</groupId>
     <artifactId>springJdbi</artifactId>
-    <version>2.4.1</version>
+    <version>2.5.0</version>
     <packaging>war</packaging>
 
     <name>springJdbi</name>
@@ -17,16 +17,18 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.optimize>true</maven.compiler.optimize>
-        <spring.version>4.2.5.RELEASE</spring.version>
-        <spring.security.version>4.0.4.RELEASE</spring.security.version>
-        <hibernate.version>5.1.0.Final</hibernate.version>
+        <spring.version>4.2.6.RELEASE</spring.version>
+        <spring.security.version>4.1.0.RELEASE</spring.security.version>
+        <hazecast.version>3.6.3</hazecast.version>
+        <hibernate.version>5.2.0.Final</hibernate.version>
         <cucumber.version>1.2.4</cucumber.version>
-        <h2.version>1.4.191</h2.version>
-        <capsule.version>1.0</capsule.version>
-        <atomikos.version>4.0.0M5</atomikos.version>
+        <h2.version>1.4.192</h2.version>
+        <capsule.version>1.0.2</capsule.version>
+        <atomikos.version>4.0.3</atomikos.version>
         <maven.test.skip>false</maven.test.skip>
         <context.path>${project.artifactId}</context.path>
-        <log4j.version>2.5</log4j.version> 
+        <context.path></context.path>
+        <log4j.version>2.6</log4j.version> 
         <disruptor.version>3.3.4</disruptor.version>
         <surefire.version>2.19.1</surefire.version>
         <jndi.dsname>jdbc/JNDIDS</jndi.dsname>
@@ -113,6 +115,16 @@
             <artifactId>spring-context-support</artifactId>
             <version>${spring.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session</artifactId>
+            <version>1.2.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-spring</artifactId>
+            <version>${hazecast.version}</version>
+        </dependency>
 	
         <!--Mobile device dection-->
         <dependency>
@@ -130,7 +142,7 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi</artifactId>
-            <version>2.71</version>
+            <version>2.73</version>
         </dependency>
         <dependency>
             <groupId>me.shakiba.jdbi</groupId>
@@ -210,7 +222,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.6</version>
+            <version>1.16.8</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -278,6 +290,12 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
+            <version>2.53.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-htmlunit-driver</artifactId>
             <version>2.52.0</version>
             <scope>test</scope>
         </dependency>
@@ -328,7 +346,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.4.0</version>
+                        <version>1.5.0</version>
                         <executions>
                             <execution>
                                 <phase>initialize</phase>
@@ -433,7 +451,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-resources-plugin</artifactId>
-                        <version>2.7</version>
+                        <version>3.0.0</version>
                         <executions>
                             <execution>
                                 <id>copy-jetty-config</id>
@@ -466,7 +484,7 @@
                                     <Application>org.eclipse.jetty:jetty-runner:9.2.13.v20150730</Application>
                                     <Application-Class>org.eclipse.jetty.runner.Runner</Application-Class>
                                     <System-Properties>catalina.home=$CAPSULE_DIR/WEB-INF org.jboss.logging.provider=log4j2</System-Properties>
-                                    <Dependencies>javax.transaction:jta:1.1 com.h2database:h2:${h2.version} com.atomikos:transactions-jta:${atomikos.version} com.atomikos:transactions-jdbc:${atomikos.version} org.slf4j:slf4j-simple:1.7.12</Dependencies>
+                                    <Dependencies>javax.transaction:jta:1.1 com.h2database:h2:${h2.version} com.atomikos:transactions-jta:${atomikos.version} com.atomikos:transactions-jdbc:${atomikos.version} org.slf4j:slf4j-simple:1.7.21</Dependencies>
                                     <Allow-Snapshots>true</Allow-Snapshots>
                                     <Min-Java-Version>1.7.0</Min-Java-Version>
                                     <Args>--config $CAPSULE_DIR/WEB-INF/jetty.xml $CAPSULE_JAR</Args>
@@ -521,7 +539,7 @@
             <plugin>
                 <groupId>ro.isdc.wro4j</groupId>
                 <artifactId>wro4j-maven-plugin</artifactId>
-                <version>1.7.9</version>
+                <version>1.8.0</version>
                 <!--<executions>
                     <execution>
                         <phase>prepare-package</phase>
@@ -603,7 +621,7 @@
             <plugin>
                 <groupId>net.masterthought</groupId>
                 <artifactId>maven-cucumber-reporting</artifactId>
-                <version>0.1.0</version>
+                <version>2.3.0</version>
                 <executions>
                     <execution>
                         <id>execution</id>
@@ -850,7 +868,7 @@
             <!--Site Report Configuration,報表管理-->
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.5</version>
+                <version>3.5.1</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.maven.doxia</groupId>
@@ -917,6 +935,8 @@
                                     <link>http://logging.apache.org/log4j/2.x/log4j-core/apidocs/</link>
                                     <link>http://jdbi.org/apidocs/</link>
                                 </links>
+                                <!--Uncomment if jdk 8-->
+                                <!--additionalparam>-Xdoclint:none</additionalparam-->
                             </configuration>
                             <reportSets>
                                 <reportSet>

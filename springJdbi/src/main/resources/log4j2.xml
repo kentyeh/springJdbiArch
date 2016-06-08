@@ -19,6 +19,10 @@
                 </Async>
         </Appenders>
         <Loggers>
+                <Logger name="org.springframework.session.hazelcast" level="DEBUG" additivity="false">
+                        <AppenderRef ref="console" />
+                        <AppenderRef ref="${project.artifactId}-Rolling" />
+                </Logger>
                 <Logger name="com.github.kentyeh" level="DEBUG" additivity="false">
                         <AppenderRef ref="console" />
                         <AppenderRef ref="${project.artifactId}-Rolling" />

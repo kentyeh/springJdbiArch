@@ -25,6 +25,7 @@
                      resource-ref="true" cache="false" lookup-on-startup="false" expected-type="javax.sql.DataSource"/>
     
     <!--Import relative configuration-->
+    <import resource="applicationContext-hazecast.xml"/>
     <import resource="applicationContext-mvc.xml"/>
     <import resource="applicationContext-security.xml"/>
     
