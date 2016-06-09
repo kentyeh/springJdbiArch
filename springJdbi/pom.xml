@@ -38,6 +38,8 @@
         <test.ssl.port>8443</test.ssl.port>
         <findbugs.fork>true</findbugs.fork>
         <wroFolder>${basedir}/src/main/webapp/wro</wroFolder>
+        <jetty.stopkey>HALT</jetty.stopkey>
+        <jetty.stoport>9966</jetty.stoport>
     </properties>
     
     <licenses>
@@ -476,7 +478,7 @@
                                     <Dependencies>javax.transaction:jta:1.1 com.h2database:h2:${h2.version} com.atomikos:transactions-jta:${atomikos.version} com.atomikos:transactions-jdbc:${atomikos.version} org.slf4j:slf4j-simple:1.7.21</Dependencies>
                                     <Allow-Snapshots>true</Allow-Snapshots>
                                     <Min-Java-Version>1.7.0</Min-Java-Version>
-                                    <Args>--config $CAPSULE_DIR/WEB-INF/jetty.xml --path /${context.path} $CAPSULE_JAR</Args>
+                                    <Args>--config $CAPSULE_DIR/WEB-INF/jetty.xml --path /${context.path} --stop-port ${jetty.stoport} --stop-key ${jetty.stopkey} $CAPSULE_JAR</Args>
                                 </manifestEntries>
                             </archive>
                         </configuration>
@@ -796,8 +798,8 @@
                         <extended>false</extended>
                         <logTimeZone>GMT</logTimeZone>
                     </requestLog>            
-                    <stopKey>HALT</stopKey>
-                    <stopPort>9966</stopPort>
+                    <stopKey>${jetty.stopkey}</stopKey>
+                    <stopPort>${jetty.stoport}</stopPort>
                 </configuration>
             </plugin>
             <plugin>
