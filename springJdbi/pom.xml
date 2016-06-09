@@ -27,7 +27,7 @@
         <atomikos.version>4.0.3</atomikos.version>
         <maven.test.skip>false</maven.test.skip>
         <context.path>${project.artifactId}</context.path>
-        <log4j.version>2.6</log4j.version> 
+        <log4j.version>2.6.1</log4j.version> 
         <disruptor.version>3.3.4</disruptor.version>
         <surefire.version>2.19.1</surefire.version>
         <jndi.dsname>jdbc/JNDIDS</jndi.dsname>
@@ -295,7 +295,7 @@
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>2.20</version>
+            <version>2.22</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -651,7 +651,6 @@
                         <version>2.1.1</version>
                     </dependency>
                 </dependencies>
-                <!-- Uncomment if java version 7+-->
                 <configuration>
                     <argLine>-XX:-UseSplitVerifier</argLine>
                 </configuration>
