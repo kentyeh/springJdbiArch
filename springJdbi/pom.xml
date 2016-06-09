@@ -27,7 +27,6 @@
         <atomikos.version>4.0.3</atomikos.version>
         <maven.test.skip>false</maven.test.skip>
         <context.path>${project.artifactId}</context.path>
-        <context.path></context.path>
         <log4j.version>2.6</log4j.version> 
         <disruptor.version>3.3.4</disruptor.version>
         <surefire.version>2.19.1</surefire.version>
@@ -173,16 +172,6 @@
             <scope>runtime</scope>
         </dependency>
         
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
-            <version>2.6.11</version>                      
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-            <version>${hibernate.version}</version>
-        </dependency>
         <!--Add your jdbc library. 加入您自個兒的JDBC函式庫-->
         <!--Database End-->
         
@@ -481,13 +470,13 @@
                                     <Main-Class>Capsule</Main-Class>
                                     <Premain-Class>Capsule</Premain-Class>
                                     <Caplets>co.paralleluniverse:capsule-maven:${capsule.version}</Caplets>
-                                    <Application>org.eclipse.jetty:jetty-runner:9.2.13.v20150730</Application>
+                                    <Application>org.eclipse.jetty:jetty-runner:9.2.17.v20160517</Application>
                                     <Application-Class>org.eclipse.jetty.runner.Runner</Application-Class>
                                     <System-Properties>catalina.home=$CAPSULE_DIR/WEB-INF org.jboss.logging.provider=log4j2</System-Properties>
                                     <Dependencies>javax.transaction:jta:1.1 com.h2database:h2:${h2.version} com.atomikos:transactions-jta:${atomikos.version} com.atomikos:transactions-jdbc:${atomikos.version} org.slf4j:slf4j-simple:1.7.21</Dependencies>
                                     <Allow-Snapshots>true</Allow-Snapshots>
                                     <Min-Java-Version>1.7.0</Min-Java-Version>
-                                    <Args>--config $CAPSULE_DIR/WEB-INF/jetty.xml $CAPSULE_JAR</Args>
+                                    <Args>--config $CAPSULE_DIR/WEB-INF/jetty.xml --path /${context.path} $CAPSULE_JAR</Args>
                                 </manifestEntries>
                             </archive>
                         </configuration>
@@ -738,7 +727,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>9.2.14.v20151106</version>
+                <version>9.2.17.v20160517</version>
                 <executions>
                     <execution>
                         <id>start-jetty</id>

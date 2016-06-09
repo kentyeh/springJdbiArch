@@ -7,21 +7,26 @@
     <hz:hazelcast id="hazelcastInstance">
         <hz:config>
             <hz:spring-aware />
-            <hz:group name="hazecast" password="hazecast"/>
+            <hz:group name="hazecast-group" password="hazecast-password"/>
             <hz:network port="5701" port-auto-increment="false">
                 <hz:join>
                     <hz:multicast enabled="false"/>
                     <hz:tcp-ip enabled="true">
-                        <hz:members>192.168.10.72,192.168.10.74</hz:members>
+                        <hz:members>127.0.0.1</hz:members>
                     </hz:tcp-ip>
                 </hz:join> 
             </hz:network>
-            <hz:map name="spring:session:sessions" time-to-live-seconds="1800"/>
+            <hz:map name="spring:session:sessions" time-to-live-seconds="1800">
+                <hz:hot-restart enabled="true" fsync="false"/>
+            </hz:map>
             <hz:serialization>
                 <hz:serializers>
                     <hz:serializer type-class="java.lang.Object" class-name="com.github.kentyeh.context.ObjectStreamSerializer"/>
                 </hz:serializers>
             </hz:serialization>
+            <hz:hot-restart-persistence enabled="true" validation-timeout-seconds="120" data-load-timeout-seconds="900">
+                <!--hz:base-dir>/tmp/hot-restart</hz:base-dir-->
+            </hz:hot-restart-persistence>
         </hz:config>
     </hz:hazelcast>
 </beans>

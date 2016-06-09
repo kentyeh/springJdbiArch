@@ -16,5 +16,5 @@ mvn clean install archetype:integration-test
 rm $CD/springJdbi/src/test/resources/pom.xml
 rm -rf $CD/springJdbi/src/main/webapp/wro/
 cd $CD
-#echo 'mvn archetype:generate -DarchetypeRepository=local -DarchetypeGroupId=com.github.kentyeh -DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=2.4.1'
+#echo 'mvn archetype:generate -DarchetypeRepository=local -DarchetypeGroupId=com.github.kentyeh -DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=2.5.0'
 #echo 'cd ./springJdbi/target/generated-sources/archetype && mvn clean deploy -P release'

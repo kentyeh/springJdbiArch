@@ -25,7 +25,7 @@
                      resource-ref="true" cache="false" lookup-on-startup="false" expected-type="javax.sql.DataSource"/>
     
     <!--Import relative configuration-->
-    <import resource="applicationContext-hazecast.xml"/>
+    <import resource="applicationContext-hazelcast.xml"/>
     <import resource="applicationContext-mvc.xml"/>
     <import resource="applicationContext-security.xml"/>
     
@@ -35,10 +35,8 @@
     <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
     
     <!--Spring Cache start,comment it if you don't need 若是不需用要Spring Cache功能，把下面這部分移除-->
-    <bean id="springCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
-        <property name="cacheManager">
-            <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" p:config-location="classpath:ehcache.xml" p:shared="true"/>
-        </property>
+    <bean id="springCacheManager" class="com.hazelcast.spring.cache.HazelcastCacheManager">
+        <constructor-arg ref="hazelcastInstance"/>
     </bean>
     <cache:annotation-driven cache-manager="springCacheManager"/>
     <!--Spring Cache end-->

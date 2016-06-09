@@ -155,8 +155,6 @@ public class DefaultController {
         if (account != null) {
             request.setAttribute("member", account);
         }
-        log.error("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  member is {} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",account);
-
         return "index";
     }
 
