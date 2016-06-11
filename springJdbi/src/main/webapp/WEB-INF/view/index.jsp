@@ -57,7 +57,7 @@
                         <form action="${cp}/j_spring_security_logout" method="post" style="display: inline">
                             <!--<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>-->
                             <sec:csrfInput />
-                            <input type="submit" value="<sec:authentication property="principal.username"/><fmt:message key="logout"/>"/>
+                            <input type="submit" value="<sec:authentication property="principal.username"/>&nbsp;<fmt:message key="logout"/>"/>
                         </form>
                     </td>
                 </tr>

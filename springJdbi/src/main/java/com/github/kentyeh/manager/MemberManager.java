@@ -4,15 +4,12 @@ import com.github.kentyeh.context.ValidationUtils;
 import com.github.kentyeh.model.Authority;
 import com.github.kentyeh.model.Dao;
 import com.github.kentyeh.model.Member;
-import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,10 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository("memberManager")
 @Log4j2
-public class MemberManager extends AbstractDaoManager<String, Member> implements ApplicationContextAware {
-
-    @Getter
-    private org.springframework.context.ApplicationContext context;
+public class MemberManager extends AbstractDaoManager<String, Member> {
 
     @Autowired(required = false)
     @Qualifier("messageAccessor")
@@ -36,11 +30,6 @@ public class MemberManager extends AbstractDaoManager<String, Member> implements
 
     @Autowired
     ValidationUtils vu;
-
-    @Override
-    public void setApplicationContext(org.springframework.context.ApplicationContext ctx) throws BeansException {
-        this.context = ctx;
-    }
 
     @Override
     public String text2Key(String text) {
@@ -67,7 +56,7 @@ public class MemberManager extends AbstractDaoManager<String, Member> implements
     @Override
     @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     public Member findByPrimaryKey(String account) {
-        Dao dao = context.getBean(Dao.class);
+        Dao dao = getContext().getBean(Dao.class);
         Member member = dao.findMemberByPrimaryKey(account);
         if (member != null) {
             member.setAuthorities(dao.findAuthorityByAccount(account));
@@ -77,18 +66,18 @@ public class MemberManager extends AbstractDaoManager<String, Member> implements
 
     @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     public List<Member> findAvailableUsers() throws Exception {
-        return context.getBean(Dao.class).findAvailableUsers();
+        return getContext().getBean(Dao.class).findAvailableUsers();
     }
 
     @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     public List<Member> findAllUsers() throws Exception {
-        return context.getBean(Dao.class).findAllUsers();
+        return getContext().getBean(Dao.class).findAllUsers();
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void newMember(Member member) throws Exception {
         try {
-            Dao dao = context.getBean(Dao.class);
+            Dao dao = getContext().getBean(Dao.class);
             vu.validateMessage(member, RuntimeException.class);
             dao.newMember(member);
             List<Authority> authories = member.getAuthorities();
@@ -106,7 +95,7 @@ public class MemberManager extends AbstractDaoManager<String, Member> implements
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean updateMember(Member member) throws Exception {
-        Dao dao = context.getBean(Dao.class);
+        Dao dao = getContext().getBean(Dao.class);
         vu.validateMessage(member, RuntimeException.class);
         if (dao.updateMember(member) == 1) {
             List<Authority> authories = member.getAuthorities();
@@ -131,7 +120,7 @@ public class MemberManager extends AbstractDaoManager<String, Member> implements
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public int updatePass(String account, String oldPass, String newPass) throws Exception {
-        return context.getBean(Dao.class).changePasswd(account, oldPass, newPass);
+        return getContext().getBean(Dao.class).changePasswd(account, oldPass, newPass);
     }
 
 }

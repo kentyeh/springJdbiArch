@@ -1,6 +1,9 @@
 package com.github.kentyeh.manager;
 
 import java.beans.PropertyEditorSupport;
+import lombok.Getter;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -12,10 +15,18 @@ import org.springframework.util.StringUtils;
  * @param <E> Entity Class
  */
 @Transactional(readOnly = true)
-public abstract class AbstractDaoManager<K, E> extends PropertyEditorSupport {
+public abstract class AbstractDaoManager<K, E> extends PropertyEditorSupport implements ApplicationContextAware {
 
     @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     public abstract E findByPrimaryKey(K key);
+
+    @Getter
+    private org.springframework.context.ApplicationContext context;
+
+    @Override
+    public void setApplicationContext(org.springframework.context.ApplicationContext ctx) throws BeansException {
+        this.context = ctx;
+    }
 
     /**
      * Convert String to key

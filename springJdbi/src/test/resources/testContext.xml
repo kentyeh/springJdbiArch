@@ -64,12 +64,18 @@
     <!--for file upload test,檔案上傳測試用-->
     <!--bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/-->
     
-    <!--Spring Cache start,comment it if you don't need 若是不需用要Spring Cache功能，把下面這部分移除-->
+    <!--hazelcast config-->
     <hz:hazelcast id="hazelcastInstance">
         <hz:config>
             <hz:spring-aware />
         </hz:config>
     </hz:hazelcast>
+    <!--expose spring session map-->
+    <hz:map id="sessionMap" instance-ref="hazelcastInstance" name="spring:session:sessions"/>
+    <hz:map id="anotherMap" instance-ref="hazelcastInstance" name="springJdbi:anotherMap" lazy-init="true"/>
+    <hz:atomicLong id="inStock" instance-ref="hazelcastInstance" name="springJdbi:instock"/>
+    
+    <!--Spring Cache start,comment it if you don't need 若是不需用要Spring Cache功能，把下面這部分移除-->
     <bean id="springCacheManager" class="com.hazelcast.spring.cache.HazelcastCacheManager">
         <constructor-arg ref="hazelcastInstance"/>
     </bean>

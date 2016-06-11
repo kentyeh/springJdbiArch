@@ -3,8 +3,12 @@ package com.github.kentyeh.controller;
 import com.github.kentyeh.context.CustomUserInfo;
 import com.github.kentyeh.manager.MemberManager;
 import com.github.kentyeh.model.Member;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IAtomicLong;
+import com.hazelcast.core.IMap;
 import java.security.Principal;
 import java.util.List;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import lombok.extern.log4j.Log4j2;
@@ -12,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.session.MapSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,6 +37,31 @@ public class DefaultController {
 
     @Autowired
     private MemberManager memberManager;
+
+    /**
+     * Show how to inject hazelcast instance.<br/>
+     * 示範取得 hazelcast 實例.
+     */
+    @Resource(name = "hazelcastInstance", type = com.hazelcast.instance.HazelcastInstanceProxy.class)
+    private HazelcastInstance hazelcast;
+    /**
+     * Show how to inject a spring-session's map by hazelcast's name.<br/>
+     * 示範使用 hazelcast 內部名稱取得 spring-session map 實例.
+     */
+    @Resource(name = "spring:session:sessions")
+    private IMap<String, MapSession> sessionMap;
+    /**
+     * Show how to inject a map by identity name.<br/>
+     * 使用唯一名稱插入另一個Map.
+     */
+    @Resource(name = "anotherMap")
+    private IMap<Object, Object> anotherMap;
+    /**
+     * Autowire an AtomicLong variable directly.<br/>
+     * 直接聯結一個 AtomicLong 變數.
+     */
+    @Autowired
+    private IAtomicLong inStock;
 
     @RequestMapping("/")
     public String root(Device device, Model model) {

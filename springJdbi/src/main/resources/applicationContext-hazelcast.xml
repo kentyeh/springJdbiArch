@@ -29,4 +29,8 @@
             </hz:hot-restart-persistence>
         </hz:config>
     </hz:hazelcast>
+    <!--expose spring session map-->
+    <hz:map id="sessionMap" instance-ref="hazelcastInstance" name="spring:session:sessions"/>
+    <hz:map id="anotherMap" instance-ref="hazelcastInstance" name="springJdbi:anotherMap" lazy-init="true"/>
+    <hz:atomicLong id="inStock" instance-ref="hazelcastInstance" name="springJdbi:instock"/>
 </beans>
