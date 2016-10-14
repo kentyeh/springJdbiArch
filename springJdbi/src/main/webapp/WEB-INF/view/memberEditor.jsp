@@ -52,7 +52,7 @@
                     <tr><th colspan="2" style="text-align: center"><input type="hidden" name="account" value="${member.account}">${member.account}
                         <input type="hidden" name="password" value="********"></th></tr></thead>
                 <tbody>
-                    <tr><td colspan="2" style="text-align: center"><input type="submit"/></td></tr>
+                    <tr><td colspan="2" style="text-align: center"><input type="submit" value="<fmt:message key="updateUserData"><fmt:param value="${member.name}"/></fmt:message>"/></td></tr>
                     <tr><td><fmt:message key="name"/>:</td><td><input type="text" name="name" value="${member.name}" width="20" maxlength="16"/></td></tr>
                     <tr><td><fmt:message key="enabled"/>:</td><td><input type="radio" name="enabled" value="Y" id="enabledY" ${"Y" eq member.enabled?"checked":""}/>
                             <label for="enabledY"><fmt:message key="true"/></label>&nbsp;

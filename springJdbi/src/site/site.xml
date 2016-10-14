@@ -39,7 +39,7 @@
         <menu ref="reports"/>
         
         <menu>
-	    <item name="黃瓜報表(Cucumber Report)" href="cucumber-reports/feature-overview.html" target="_blank"/>
+	    <item name="黃瓜報表(Cucumber Report)" href="cucumber-reports/cucumber-html-reports/overview-features.html" target="_blank"/>
             <item name="說明(README)" href="readme.html"/>
             <item name="常見問題(FAQ)" href="faq.html"/>
         </menu>

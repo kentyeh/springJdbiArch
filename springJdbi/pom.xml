@@ -17,18 +17,18 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.optimize>true</maven.compiler.optimize>
-        <spring.version>4.3.2.RELEASE</spring.version>
+        <spring.version>4.3.3.RELEASE</spring.version>
         <spring.security.version>4.1.3.RELEASE</spring.security.version>
-        <hazecast.version>3.7-EA</hazecast.version>
+        <hazecast.version>3.7.2</hazecast.version>
         <hibernate.version>5.2.0.Final</hibernate.version>
-        <cucumber.version>1.2.4</cucumber.version>
+        <cucumber.version>1.2.5</cucumber.version>
         <h2.version>1.4.192</h2.version>
-        <capsule.version>1.0.2</capsule.version>
+        <capsule.version>1.0.3</capsule.version>
         <atomikos.version>4.0.4</atomikos.version>
         <maven.test.skip>false</maven.test.skip>
         <context.path>${project.artifactId}</context.path>
-        <log4j.version>2.6.2</log4j.version> 
-        <disruptor.version>3.3.5</disruptor.version>
+        <log4j.version>2.7</log4j.version> 
+        <disruptor.version>3.3.6</disruptor.version>
         <surefire.version>2.19.1</surefire.version>
         <jndi.dsname>jdbc/JNDIDS</jndi.dsname>
         <key.alias>tomcat</key.alias>
@@ -38,6 +38,7 @@
         <test.ssl.port>8443</test.ssl.port>
         <findbugs.fork>true</findbugs.fork>
         <wroFolder>${basedir}/src/main/webapp/wro</wroFolder>
+        <jetty.version>9.2.19.v20160908</jetty.version>
         <jetty.stopkey>HALT</jetty.stopkey>
         <jetty.stoport>9966</jetty.stoport>
     </properties>
@@ -119,7 +120,7 @@
         <dependency>
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session</artifactId>
-            <version>1.2.1.RELEASE</version>
+            <version>1.2.2.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
@@ -148,12 +149,12 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi</artifactId>
-            <version>2.75</version>
+            <version>2.77</version>
         </dependency>
         <dependency>
             <groupId>me.shakiba.jdbi</groupId>
             <artifactId>jdbi-annotation</artifactId>
-            <version>0.1.1</version>
+            <version>0.1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -163,7 +164,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>5.2.4.Final</version>
+            <version>5.3.0.Final</version>
         </dependency>
         <!--hibernate-validator 5.x require el-api-->
         <dependency>
@@ -242,7 +243,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.9.10</version>
+            <version>6.9.13.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -470,14 +471,14 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
-                        <version>2.6</version>
+                        <version>3.0.0</version>
                         <configuration>
                             <archive>
                                 <manifestEntries>
                                     <Main-Class>Capsule</Main-Class>
                                     <Premain-Class>Capsule</Premain-Class>
                                     <Caplets>co.paralleluniverse:capsule-maven:${capsule.version}</Caplets>
-                                    <Application>org.eclipse.jetty:jetty-runner:9.2.17.v20160517</Application>
+                                    <Application>org.eclipse.jetty:jetty-runner:${jetty.version}</Application>
                                     <Application-Class>org.eclipse.jetty.runner.Runner</Application-Class>
                                     <System-Properties>catalina.home=$CAPSULE_DIR/WEB-INF org.jboss.logging.provider=log4j2</System-Properties>
                                     <Dependencies>javax.transaction:jta:1.1 com.h2database:h2:${h2.version} com.atomikos:transactions-jta:${atomikos.version} com.atomikos:transactions-jdbc:${atomikos.version} org.slf4j:slf4j-simple:1.7.21</Dependencies>
@@ -617,7 +618,7 @@
             <plugin>
                 <groupId>net.masterthought</groupId>
                 <artifactId>maven-cucumber-reporting</artifactId>
-                <version>2.4.0</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>execution</id>
@@ -733,7 +734,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-		<version>9.2.18.v20160721</version>
+		<version>${jetty.version}</version>
                 <!--version>9.2.17.v20160517</version-->
                 <executions>
                     <execution>

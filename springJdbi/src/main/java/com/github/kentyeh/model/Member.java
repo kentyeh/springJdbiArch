@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
@@ -45,6 +47,7 @@ public class Member implements Serializable {
     @Column
     private String enabled = "Y";
     @Column
+    @Temporal(javax.persistence.TemporalType.DATE)
     private Date birthday;
     private List<Authority> authorities;
 
@@ -90,7 +93,7 @@ public class Member implements Serializable {
         } else {
             if (this.authorities == null) {
                 this.authorities = new ArrayList<>(authorities.size());
-            } else if(!this.authorities.isEmpty()){
+            } else if (!this.authorities.isEmpty()) {
                 this.authorities.clear();
             }
             this.authorities.addAll(authorities);
