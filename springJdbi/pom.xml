@@ -4,7 +4,7 @@
 
     <groupId>com.github.kentyeh</groupId>
     <artifactId>springJdbi</artifactId>
-    <version>2.5.1</version>
+    <version>2.5.2</version>
     <packaging>war</packaging>
 
     <name>springJdbi</name>
@@ -152,9 +152,9 @@
             <version>2.77</version>
         </dependency>
         <dependency>
-            <groupId>me.shakiba.jdbi</groupId>
+            <groupId>com.github.kentyeh</groupId>
             <artifactId>jdbi-annotation</artifactId>
-            <version>0.1.2-SNAPSHOT</version>
+            <version>0.1.2</version>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -734,7 +734,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-		<version>${jetty.version}</version>
+                <version>${jetty.version}</version>
                 <!--version>9.2.17.v20160517</version-->
                 <executions>
                     <execution>
