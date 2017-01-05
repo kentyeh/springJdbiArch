@@ -56,20 +56,20 @@ public class TestIntegration {
         String url = String.format("http://localhost:%d/%s/user/myinfo", httpPort, contextPath);
         log.debug("Test myinfo with {}", url);
         driver.get(url);
-        WebElement form =  driver.findElement(By.tagName("form"));
+        WebElement form = driver.findElement(By.tagName("form"));
         form.findElement(By.name("j_username")).sendKeys("admin");
         form.findElement(By.name("j_password")).sendKeys("admin");
         form.submit();
         WebElement h1 = driver.findElement(By.xpath("//h1"));
         assertThat("Fail to get My Info", h1.getText(), is(containsString("admin")));
     }
-    
+
     @Test(dependsOnMethods = "testMyInfo")
     public void logout() throws IOException {
         String url = String.format("http://localhost:%d/%s/", httpPort, contextPath);
         log.debug("Integration Test: logout with {}", url);
         driver.get(url);
-        WebElement form =  driver.findElement(By.tagName("form"));
+        WebElement form = driver.findElement(By.tagName("form"));
         form.submit();
         assertThat("logout failed ", driver.getCurrentUrl(), is(containsString("/index")));
     }

@@ -12,16 +12,16 @@
         <link rel="stylesheet" href="${cp}/wro/all.css"/>
         <script src="${cp}/wro/all.js"></script>
         <script>
-            function ajaxGetUser(){
+            function ajaxGetUser(path){
                 $.ajax({
                     type : "POST",
-                    url : "${cp}/admin/users",
+                    url : "${cp}/admin/"+(path?path:"users"),
                     dataType : "json",
                     headers: {"${_csrf.headerName}":"${_csrf.token}"},
                     data: {},
                     cache: false,
                     error:function(jqXHR,  statusText){
-                        alert("Exception prone when fetch users' data with "+statusText+":["+jqXHR.status+"]:\n\t"+jqXHR.statusText);
+                        alert("Exception prone when fetch users' data with "+statusText+":["+jqXHR.status+"]:"+jqXHR.statusText+"\n\t"+jqXHR.responseText);
                     },
                     success:function(data){  
                         if(data.total==0){
@@ -87,7 +87,9 @@
             </table>
         </c:if><br/>
         <c:set var="adminAjaxList"><fmt:message key="adminAjaxList"/></c:set>
+        <c:set var="adminUserAjaxList"><fmt:message key="adminUserAjaxList"/></c:set>
         <input type="button" onclick="ajaxGetUser()" value="<c:out value="${adminAjaxList}" escapeXml="true"/>"/>
+        <input type="button" onclick="ajaxGetUser('adminOrUsers')" value="<c:out value="${adminUserAjaxList}" escapeXml="true"/>"/>
         <div id="listuser"></div>
     </center>
 </body>

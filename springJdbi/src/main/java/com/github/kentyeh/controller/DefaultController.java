@@ -118,6 +118,33 @@ public class DefaultController {
             return sb.toString();
         }
     }
+    /**
+     * Response admins'/users' data as json.
+     *
+     * @return
+     * @throws java.lang.Exception
+     */
+    @RequestMapping(value = "/admin/adminOrUsers", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String listAdminUsers() throws Exception {
+        List<Member> users = memberManager.findAdminUser();
+        if (users == null || users.isEmpty()) {
+            return "{\"total\":0,\"users\":[]}";
+        } else {
+            StringBuilder sb = new StringBuilder("{\"total\":").append(users.size()).append(",\"users\":[");
+            boolean isFirst = true;
+            for (Member user : users) {
+                if (!isFirst) {
+                    sb.append(",");
+                }
+                sb.append("{\"account\":\"").append(user.getAccount()).append("\",\"name\":\"").append(user.getName())
+                        .append("\",\"birthday\":\"").append(String.format("%tF", user.getBirthday())).append("\"}");
+                isFirst = false;
+            }
+            sb.append("]}");
+            return sb.toString();
+        }
+    }
 
     /**
      * Member's editor form.

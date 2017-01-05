@@ -5,6 +5,7 @@ import com.github.kentyeh.model.Authority;
 import com.github.kentyeh.model.Dao;
 import com.github.kentyeh.model.Member;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
@@ -72,6 +73,16 @@ public class MemberManager extends AbstractDaoManager<String, Member> {
     @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     public List<Member> findAllUsers() throws Exception {
         return getContext().getBean(Dao.class).findAllUsers();
+    }
+    
+    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    public List<Member> findAdminUser() throws Exception {
+        try{
+        return getContext().getBean(Dao.class).findUsersByAuthoritues(Arrays.asList(new String[]{"ROLE_ADMIN","ROLE_USER"}));
+        }catch(Exception ex){
+            log.error(ex.getMessage(),ex);
+            throw ex;
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

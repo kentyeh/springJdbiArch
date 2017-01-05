@@ -30,6 +30,12 @@ public interface Dao extends AutoCloseable{
     @SqlQuery("SELECT * FROM appmember ORDER BY account")
     @RegisterMapperFactory(AnnoMapperFactory.class)
     List<Member> findAllUsers();
+    
+    @SqlQuery("SELECT * FROM appmember WHERE EXISTS(SELECT 1 FROM authorities"
+            + " WHERE authorities.account=appmember.account AND ARRAY_CONTAINS( :auths ,authority) )"
+            + " ORDER BY account")
+    @RegisterMapperFactory(AnnoMapperFactory.class)
+    List<Member> findUsersByAuthoritues(@BindStringList("auths") List<String> authoritues);
 
     @SqlQuery("SELECT * FROM authorities WHERE account = :account")
     @RegisterMapperFactory(AnnoMapperFactory.class)

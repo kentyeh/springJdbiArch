@@ -26,6 +26,9 @@ select 'user5','user5','user5','Y',CURRENT_DATE()
 insert into appmember(account,name,passwd,enabled,birthday)
 select 'userx','userx','userx','N',CURRENT_DATE()
  WHERE NOT EXISTS(SELECT 1 FROM appmember where account='userx');
+insert into appmember(account,name,passwd,enabled,birthday)
+select 'secretary','secretary','secretary','N',CURRENT_DATE()
+ WHERE NOT EXISTS(SELECT 1 FROM appmember where account='secretary');
 
 CREATE TABLE IF NOT EXISTS authorities(
   aid SERIAL primary key,
@@ -50,3 +53,5 @@ insert into authorities(account,authority) select 'user5','ROLE_USER'
  where not exists(select 1 from authorities where account='user5' and authority='ROLE_USER');
 insert into authorities(account,authority) select 'userx','ROLE_USER'
  where not exists(select 1 from authorities where account='userx' and authority='ROLE_USER');
+insert into authorities(account,authority) select 'secretary','ROLE_SECRETARY'
+ where not exists(select 1 from authorities where account='secretary' and authority='ROLE_SECRETARY');

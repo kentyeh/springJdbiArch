@@ -2,6 +2,7 @@ package com.github.kentyeh.controller;
 
 import com.github.kentyeh.manager.TestMemberManager;
 import com.github.kentyeh.model.Member;
+import java.util.Arrays;
 import lombok.extern.log4j.Log4j2;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -51,6 +52,12 @@ public class TestDefaultController extends AbstractTestNGSpringContextTests {
     public void testListuser() throws Exception {
         mockMvc.perform(post("/admin/users").with(user("admin").roles("ADMIN"))).andDo(print()).andExpect(jsonPath("$.total", is(equalTo(memberManager.countUsers()))));
     }
+    
+    @Test
+    public void testListAdminOrUser() throws Exception {
+        mockMvc.perform(post("/admin/adminOrUsers").with(user("admin").roles("ADMIN"))).andDo(print()).andExpect(jsonPath("$.total", is(equalTo(memberManager.countAdminOrUser(Arrays.asList(new String[]{"ROLE_ADMIN","ROLE_USER"}))))));
+    }
+
 
     @Test
     public void testMyinfo() throws Exception {

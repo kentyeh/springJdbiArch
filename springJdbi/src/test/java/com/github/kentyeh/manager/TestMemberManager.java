@@ -2,6 +2,7 @@ package com.github.kentyeh.manager;
 
 import com.github.kentyeh.model.Member;
 import com.github.kentyeh.model.TestDao;
+import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,6 +24,11 @@ public class TestMemberManager extends MemberManager {
     @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     public int countUsers() throws Exception {
         return getContext().getBean(TestDao.class).countUsers();
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    public int countAdminOrUser(List<String> authoritues) {
+        return getContext().getBean(TestDao.class).countAdminOrUser(authoritues);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
