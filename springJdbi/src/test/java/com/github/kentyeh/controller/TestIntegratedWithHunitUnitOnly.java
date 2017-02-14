@@ -73,7 +73,8 @@ public class TestIntegratedWithHunitUnitOnly {
         log.debug("Integration Test: logout with {}", url);
         HtmlPage homePage = webClient.getPage(url);
         HtmlForm form = homePage.getFirstByXPath("//form");
-        homePage = form.getOneHtmlElementByAttribute("input", "type", "submit").click();
+//        homePage = form.getOneHtmlElementByAttribute("button", "type", "submit").click();
+        homePage = form.getElementsByTagName("button").get(0).click();
         log.debug("logout redirect to {}", homePage.getUrl());
         assertThat("logout failed ", homePage.getUrl().toString(), is(containsString("/index")));
     }

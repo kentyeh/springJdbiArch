@@ -27,14 +27,14 @@
                         if(data.total==0){
                             $("#listuser").html("");
                         }else{
-                            var html="<table border=\"1\"  class=\"ui-widget-content ui-corner-all\"><thead><tr><th><fmt:message key="account"/></th><th><fmt:message key="name"/></th><th><fmt:message key="birthday"/></th></tr></thead><tbody>";
+                            var html="<table class=\"mdl-data-table mdl-js-data-table mdl-shadow--2dp\"><thead><tr><th class=\"mdl-data-table__cell--non-numeric\"><fmt:message key="account"/></th><th class=\"mdl-data-table__cell--non-numeric\"><fmt:message key="name"/></th><th class=\"mdl-data-table__cell--non-numeric\"><fmt:message key="birthday"/></th></tr></thead><tbody>";
                             for(var i=0;i<data.total;i++){
                                 var user = data.users[i];
                                 <sec:authorize access="hasRole('ROLE_ADMIN')" var="isAdmin">
-                                html = html + "<tr><td><a href=\"${cp}/member/edit/"+user.account+"\">"+user.account+"</a></td><td>"+user.name+"</td><td>"+user.birthday+"</td></tr>";
+                                html = html + "<tr><td class=\"mdl-data-table__cell--non-numeric\"><a class=\"mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent\" href=\"${cp}/member/edit/"+user.account+"\"><i class=\"material-icons\">&#xE254;</i>"+user.account+"</a></td><td class=\"mdl-data-table__cell--non-numeric\">"+user.name+"</td><td class=\"mdl-data-table__cell--non-numeric\">"+user.birthday+"</td></tr>";
                                 </sec:authorize>
                                 <c:if test="${not isAdmin}">
-                                html = html + "<tr><td>"+user.account+"</td><td>"+user.name+"</td><td>"+user.birthday+"</td></tr>";
+                                html = html + "<tr><td class=\"mdl-data-table__cell--non-numeric\">"+user.account+"</td><td class=\"mdl-data-table__cell--non-numeric\">"+user.name+"</td><td class=\"mdl-data-table__cell--non-numeric\">"+user.birthday+"</td></tr>";
                                 </c:if>
                             }
                             html += "</tbody></table>";
@@ -49,48 +49,53 @@
         </script>
     </head>
     <body>
-        <table border="0" style="width:100%">
+        <table border="0" style="width:100%;position: fixed;top: 3px">
             <sec:authorize access="authenticated" var="logined">
                 <tr>
-                    <td><a href="${cp}/changePassword"><fmt:message key="changePassword"/></a></td>
+                    <td><a href="${cp}/changePassword" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                            <i class="material-icons">&#xE90D;</i><fmt:message key="changePassword"/></a></td>
                     <td align="right">
                         <form action="${cp}/j_spring_security_logout" method="post" style="display: inline">
                             <!--<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>-->
                             <sec:csrfInput />
-                            <input type="submit" value="<sec:authentication property="principal.username"/>&nbsp;<fmt:message key="logout"/>"/>
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                                <sec:authentication property="principal.username"/>&nbsp;<fmt:message key="logout"/>
+                            <i class="material-icons">&#xE879;</i></button>
                         </form>
                     </td>
                 </tr>
             </sec:authorize>
             <c:if test="${not logined}">
                 <tr>
-                    <td align="right"><a href="${cp}/user/myinfo"><fmt:message key="myinfo"/></a></td>
+                    <td align="right"><a href="${cp}/user/myinfo" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"><fmt:message key="myinfo"/></a></td>
                 </tr>
             </c:if>
         </table>
 
     <center  style="display: none"><c:set var="world"><fmt:message key="world"/></c:set>
-        <h1><fmt:message key="hello"/> ${empty member?world:member.name}</h1>
+        <h1 class="mdl-shadow--3dp"><fmt:message key="hello"/> ${empty member?world:member.name}</h1>
         <c:if test="${not empty member}">
-            <table id="myinfo" border="1" class="ui-widget-content ui-corner-all">
-                <tr><th colspan="2"><fmt:message key="myinfo"/></th></tr>
-                <tr><td><fmt:message key="account"/>:</td><td>${member.account}</td></tr>
-                <tr><td><fmt:message key="name"/>:</td><td>${member.name}</td></tr>
-                <tr><td><fmt:message key="enabled"/>:</td><td><c:if test="${'Y' eq member.enabled}"><fmt:message key="true"/></c:if>
+            <table id="myinfo" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                <thead><tr><th colspan="2" class="mdl-data-table__cell--non-numeric"><fmt:message key="myinfo"/></th></tr></thead>
+                <tbody>
+                    <tr><td class="mdl-data-table__cell--non-numeric"><fmt:message key="account"/>:</td><td class="mdl-data-table__cell--non-numeric">${member.account}</td></tr>
+                    <tr><td class="mdl-data-table__cell--non-numeric"><fmt:message key="name"/>:</td><td class="mdl-data-table__cell--non-numeric">${member.name}</td></tr>
+                    <tr><td class="mdl-data-table__cell--non-numeric"><fmt:message key="enabled"/>:</td><td class="mdl-data-table__cell--non-numeric"><c:if test="${'Y' eq member.enabled}"><fmt:message key="true"/></c:if>
                         <c:if test="${'Y' ne member.enabled}"><fmt:message key="false"/></c:if></td></tr>
-                <tr><td><fmt:message key="birthday"/>:</td><td><fmt:formatDate value="${member.birthday}" pattern="yyyy/MM/dd"/></td></tr>
-                <tr><td><fmt:message key="role"/>:</td><td>
+                    <tr><td class="mdl-data-table__cell--non-numeric"><fmt:message key="birthday"/>:</td><td class="mdl-data-table__cell--non-numeric"><fmt:formatDate value="${member.birthday}" pattern="yyyy/MM/dd"/></td></tr>
+                    <tr><td class="mdl-data-table__cell--non-numeric"><fmt:message key="role"/>:</td><td class="mdl-data-table__cell--non-numeric">
                         <c:forEach var="authority" items="${member.authorities}">
                             ${authority.authority}&nbsp;
                         </c:forEach>
                     </td></tr>
+                </tbody>
             </table>
         </c:if><br/>
         <c:set var="adminAjaxList"><fmt:message key="adminAjaxList"/></c:set>
         <c:set var="adminUserAjaxList"><fmt:message key="adminUserAjaxList"/></c:set>
-        <input type="button" onclick="ajaxGetUser()" value="<c:out value="${adminAjaxList}" escapeXml="true"/>"/>
-        <input type="button" onclick="ajaxGetUser('adminOrUsers')" value="<c:out value="${adminUserAjaxList}" escapeXml="true"/>"/>
-        <div id="listuser"></div>
+        <input type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="ajaxGetUser()" value="<c:out value="${adminAjaxList}" escapeXml="true"/>"/>
+        <input type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="ajaxGetUser('adminOrUsers')" value="<c:out value="${adminUserAjaxList}" escapeXml="true"/>"/>
+        <div id="listuser" style="margin-top: 10px"></div>
     </center>
 </body>
 </html>

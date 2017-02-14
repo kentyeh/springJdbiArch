@@ -34,7 +34,9 @@ public class TestIntegration {
         this.httpPort = httpPort;
         log.debug("http port is {}", httpPort);
         this.contextPath = contextPath;
-        driver = WebDriverFactory.getInstance(WebDriverFactory.Brwoser.HTMLUNIT);
+        driver = 
+                WebDriverFactory.getInstance(
+                        WebDriverFactory.Brwoser.HTMLUNIT);
     }
 
     @AfterClass
