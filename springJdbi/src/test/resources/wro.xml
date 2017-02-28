@@ -11,6 +11,7 @@
         <css>https://fonts.googleapis.com/icon?family=Material+Icons</css>
         <css>https://code.getmdl.io/&mdl.version;/material.indigo-pink.min.css</css>
         <css>http://code.jquery.com/ui/&jqueryui.version;/themes/smoothness/jquery-ui.css</css>
+        <css>/css/default.css</css>
         <js>https://code.getmdl.io/&mdl.version;/material.min.js</js>
         <js>http://code.jquery.com/jquery-&jquery.version;.js</js>
         <js>http://code.jquery.com/ui/&jqueryui.version;/jquery-ui.js</js>

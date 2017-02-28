@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
@@ -31,6 +32,7 @@ public class Member implements Serializable {
     @Getter
     @Setter
     @Column
+    @Id
     private String account;
     @NotNull(message = "{com.github.kentyeh.model.Member.passwd.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.passwd.notEmpty.message}")
@@ -47,7 +49,7 @@ public class Member implements Serializable {
     @Column
     private String enabled = "Y";
     @Column
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(TemporalType.DATE)
     private Date birthday;
     private List<Authority> authorities;
 
