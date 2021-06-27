@@ -2,43 +2,45 @@ package com.github.kentyeh.model;
 
 import java.util.Collection;
 import java.util.List;
-import me.shakiba.jdbi.annotation.AnnoMapperFactory;
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.BindBean;
-import org.skife.jdbi.v2.sqlobject.GetGeneratedKeys;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapperFactory;
-import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
-import org.skife.jdbi.v2.unstable.BindIn;
+
+import org.jdbi.v3.sqlobject.SqlObject;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.customizer.BindList;
+import org.jdbi.v3.sqlobject.customizer.DefineList;
+import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine;
 
 /**
  *
  * @author Kent Yeh
  */
-@UseStringTemplate3StatementLocator //For In query syntax
-public interface Dao extends AutoCloseable{
+public interface Dao extends SqlObject, AutoCloseable {
 
     @SqlQuery("SELECT * FROM appmember WHERE account = :account")
-    @RegisterMapperFactory(AnnoMapperFactory.class)
+    @RegisterRowMapper(Member.MemberMapper.class)
     Member findMemberByPrimaryKey(@Bind("account") String account);
 
     @SqlQuery("SELECT * FROM appmember WHERE enabled = 'Y' ORDER BY account")
-    @RegisterMapperFactory(AnnoMapperFactory.class)
+    @RegisterRowMapper(Member.MemberMapper.class)
     List<Member> findAvailableUsers();
-    
+
     @SqlQuery("SELECT * FROM appmember ORDER BY account")
-    @RegisterMapperFactory(AnnoMapperFactory.class)
+    @RegisterRowMapper(Member.MemberMapper.class)
     List<Member> findAllUsers();
-    
+
     @SqlQuery("SELECT * FROM appmember WHERE EXISTS(SELECT 1 FROM authorities"
-            + " WHERE authorities.account=appmember.account AND ARRAY_CONTAINS( :auths ,authority) )"
+            + " WHERE authorities.account=appmember.account AND ARRAY_CONTAINS(ARRAY[ <auths> ],authority) )"
             + " ORDER BY account")
-    @RegisterMapperFactory(AnnoMapperFactory.class)
-    List<Member> findUsersByAuthoritues(@BindStringList("auths") List<String> authoritues);
+    @UseStringTemplateEngine
+    @RegisterRowMapper(Member.MemberMapper.class)
+    List<Member> findUsersByAuthoritues(@BindList("auths") List<String> auths);
 
     @SqlQuery("SELECT * FROM authorities WHERE account = :account")
-    @RegisterMapperFactory(AnnoMapperFactory.class)
+    @RegisterRowMapper(Authority.AuthorityMapper.class)
     List<Authority> findAuthorityByAccount(@Bind("account") String account);
 
     @SqlUpdate("UPDATE appmember SET passwd = :newPass WHERE account = :account AND passwd= :oldPass")
@@ -49,8 +51,8 @@ public interface Dao extends AutoCloseable{
     void newMember(@BindBean Member member);
 
     @SqlUpdate("UPDATE appmember SET name= :name ,passwd= :password,enabled= :enabled ,birthday= :birthday WHERE account= :account")
-    int  updateMember(@BindBean Member member);
-    
+    int updateMember(@BindBean Member member);
+
     @SqlQuery("SELECT passwd FROM appmember WHERE account= :account")
     String getPasswd(@Bind("account") String account);
 
@@ -58,19 +60,30 @@ public interface Dao extends AutoCloseable{
     int removeMember(@Bind("account") String account);
 
     @SqlQuery("SELECT * FROM authorities WHERE account = :account AND authority= :authority")
-    @RegisterMapperFactory(AnnoMapperFactory.class)
+    @RegisterRowMapper(Authority.AuthorityMapper.class)
     Authority findAuthorityByBean(@BindBean Authority authority);
 
     @SqlUpdate("INSERT INTO authorities(account,authority) values( :account, :authority)")
-    @GetGeneratedKeys
+    @GetGeneratedKeys("aid")
     long newAuthority(@BindBean Authority authority);
 
     @SqlUpdate("DELETE FROM authorities WHERE account = :account")
     int removeAuthories(@Bind("account") String account);
 
     @SqlUpdate("DELETE FROM authorities WHERE account = :account AND authority not in ( <authorities> )")
-    int removeAuthories(@Bind("account") String account, @BindIn("authorities") Collection<String> authorities);
+    int removeAuthories(@Bind("account") String account, @DefineList("authorities") Collection<String> authorities);
+
+    @SqlUpdate("DELETE FROM authorities WHERE aid= :aid")
+    int removeAuthority(@Bind("aid") long aid);
 
     @SqlQuery("select count(8) from information_schema.sessions")
     int countSessions();
+    
+    @SqlQuery("SELECT member FROM hzmembers")
+    List<String> queryHzMembers();
+
+    @Override
+    default void close() {
+        getHandle().close();
+    }
 }

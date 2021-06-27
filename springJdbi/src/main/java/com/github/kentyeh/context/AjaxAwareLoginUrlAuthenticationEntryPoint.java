@@ -4,7 +4,8 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -16,9 +17,9 @@ import org.springframework.util.StringUtils;
  *
  * @author Kent Yeh
  */
-@Log4j2
 public class AjaxAwareLoginUrlAuthenticationEntryPoint extends LoginUrlAuthenticationEntryPoint {
 
+    private static final Logger logger = LogManager.getLogger(AjaxAwareLoginUrlAuthenticationEntryPoint.class);
     @Autowired(required = false)
     @Qualifier("messageAccessor")
     MessageSourceAccessor messageAccessor;
@@ -29,7 +30,7 @@ public class AjaxAwareLoginUrlAuthenticationEntryPoint extends LoginUrlAuthentic
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         super.afterPropertiesSet();
         if (messageAccessor != null) {
             accessDenied = messageAccessor.getMessage("AbstractAccessDecisionManager.accessDenied", accessDenied);
@@ -39,13 +40,13 @@ public class AjaxAwareLoginUrlAuthenticationEntryPoint extends LoginUrlAuthentic
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-            log.debug("Ajax fail owing forbidden!");
+            logger.debug("Ajax fail owing forbidden!");
             //jetty sendError only support ISO-8859-1
             response.sendError(HttpServletResponse.SC_FORBIDDEN, accessDenied);
         } else {
             String pathInfo = request.getServletPath();
             if (StringUtils.hasText(pathInfo) && pathInfo.contains("/json")) {
-                log.debug("Ajax fail owing forbidden!");
+                logger.debug("Ajax fail owing forbidden!");
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, accessDenied);
             } else {
                 super.commence(request, response, authException);

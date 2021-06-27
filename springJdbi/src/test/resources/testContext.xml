@@ -2,23 +2,22 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:c="http://www.springframework.org/schema/c"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:util="http://www.springframework.org/schema/util"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:jdbc="http://www.springframework.org/schema/jdbc"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:cache="http://www.springframework.org/schema/cache"
-       xmlns:hz="http://www.hazelcast.com/schema/spring"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
-       http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
-       http://www.hazelcast.com/schema/spring https://hazelcast.com/schema/spring/hazelcast-spring-3.7.xsd">
+       http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
     <!--support JSR-250-->
-    <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/> 
+    <context:annotation-config/>
     
     <!-- defind application variables-->
     <util:map id="appProperies" map-class="java.util.HashMap" key-type="java.lang.String" value-type="java.lang.String">
@@ -44,8 +43,26 @@
     <jdbc:initialize-database data-source="dataSource">
         <jdbc:script location="classpath:testSchema.sql" encoding="UTF-8" execution="INIT"/>
     </jdbc:initialize-database>
+    <alias name="org.springframework.jdbc.datasource.init.DataSourceInitializer#0" alias="dsInit"/>
+    
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" p:dataSource-ref="dataSource"/>
     
+    <!--Initialization must run after SQL executing.必須等到SQL跑完-->
+    <bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean" c:dataSource-ref="dataSource" depends-on="dsInit">
+        <property name="plugins">
+            <util:list value-type="org.jdbi.v3.core.spi.JdbiPlugin">
+                <bean class="org.jdbi.v3.sqlobject.SqlObjectPlugin"/>
+                <bean class="org.jdbi.v3.core.h2.H2DatabasePlugin"/>
+            </util:list>
+        </property>
+    </bean>
+    <bean class="org.springframework.beans.factory.config.MethodInvokingBean">
+        <property name="targetObject" ref="jdbi"/>
+        <property name="targetMethod" value="setSqlLogger"/>
+        <property name="arguments">
+            <bean class="com.github.kentyeh.context.JdbiLog"/>
+        </property>
+    </bean>
     <!--Enabled @Transactional-->
     <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
     
@@ -64,20 +81,9 @@
     <!--for file upload test,檔案上傳測試用-->
     <!--bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/-->
     
-    <!--hazelcast config-->
-    <hz:hazelcast id="hazelcastInstance">
-        <hz:config>
-            <hz:spring-aware />
-        </hz:config>
-    </hz:hazelcast>
-    <!--expose spring session map-->
-    <hz:map id="sessionMap" instance-ref="hazelcastInstance" name="spring:session:sessions"/>
-    <hz:map id="anotherMap" instance-ref="hazelcastInstance" name="springJdbi:anotherMap" lazy-init="true"/>
-    <hz:atomicLong id="inStock" instance-ref="hazelcastInstance" name="springJdbi:instock"/>
-    
-    <!--Spring Cache start,comment it if you don't need 若是不需用要Spring Cache功能，把下面這部分移除-->
     <bean id="springCacheManager" class="com.hazelcast.spring.cache.HazelcastCacheManager">
         <constructor-arg ref="hazelcastInstance"/>
+        <property name="cacheOptions" value="defaultReadTimeout=0"/>
     </bean>
     <cache:annotation-driven cache-manager="springCacheManager"/>
     

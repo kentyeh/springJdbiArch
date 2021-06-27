@@ -1,4 +1,4 @@
-Feature: Base functionality testing.
+Feature: Testing base functionality.
   Testing for system funciton.
   Scenario: Successful check all users infomation
     Given administrator has been authorized.

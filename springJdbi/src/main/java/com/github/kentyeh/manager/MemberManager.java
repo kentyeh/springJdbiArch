@@ -7,8 +7,9 @@ import com.github.kentyeh.model.Member;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -21,13 +22,16 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Kent Yeh
  */
 @Repository("memberManager")
-@Log4j2
 public class MemberManager extends AbstractDaoManager<String, Member> {
 
-    @Autowired(required = false)
+    private static final Logger logger = LogManager.getLogger(MemberManager.class);
+    @Autowired
     @Qualifier("messageAccessor")
-    @Getter
     MessageSourceAccessor messageAccessor;
+
+    public MessageSourceAccessor getMessageAccessor() {
+        return messageAccessor;
+    }
 
     @Autowired
     ValidationUtils vu;
@@ -60,7 +64,12 @@ public class MemberManager extends AbstractDaoManager<String, Member> {
         Dao dao = getContext().getBean(Dao.class);
         Member member = dao.findMemberByPrimaryKey(account);
         if (member != null) {
-            member.setAuthorities(dao.findAuthorityByAccount(account));
+            try {
+                List<Authority> auths = dao.findAuthorityByAccount(account);
+                member.setAuthorities(auths);
+            } catch (Exception ex) {
+                logger.error(ex.getMessage(), ex);
+            }
         }
         return member;
     }
@@ -74,13 +83,13 @@ public class MemberManager extends AbstractDaoManager<String, Member> {
     public List<Member> findAllUsers() throws Exception {
         return getContext().getBean(Dao.class).findAllUsers();
     }
-    
+
     @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     public List<Member> findAdminUser() throws Exception {
-        try{
-        return getContext().getBean(Dao.class).findUsersByAuthoritues(Arrays.asList(new String[]{"ROLE_ADMIN","ROLE_USER"}));
-        }catch(Exception ex){
-            log.error(ex.getMessage(),ex);
+        try {
+            return getContext().getBean(Dao.class).findUsersByAuthoritues(Arrays.asList(new String[]{"ROLE_ADMIN", "ROLE_USER"}));
+        } catch (BeansException ex) {
+            logger.error(ex.getMessage(), ex);
             throw ex;
         }
     }
@@ -98,8 +107,8 @@ public class MemberManager extends AbstractDaoManager<String, Member> {
                     dao.newAuthority(authority);
                 }
             }
-        } catch (Exception ex) {
-            log.debug("{}{}", messageAccessor.getMessage("exception.newMember"), ex.getMessage());
+        } catch (BeansException ex) {
+            logger.debug("{}{}", messageAccessor.getMessage("exception.newMember"), ex.getMessage());
             throw new RuntimeException(ex.getMessage(), extractSQLException(ex));
         }
     }
@@ -109,17 +118,25 @@ public class MemberManager extends AbstractDaoManager<String, Member> {
         Dao dao = getContext().getBean(Dao.class);
         vu.validateMessage(member, RuntimeException.class);
         if (dao.updateMember(member) == 1) {
+            List<Authority> oriauthories = dao.findAuthorityByAccount(member.getAccount());
             List<Authority> authories = member.getAuthorities();
+            List<Authority> newauthories = new ArrayList<>();
             if (authories != null && !authories.isEmpty()) {
-                List<String> auths = new ArrayList<>();
                 for (Authority authority : authories) {
-                    auths.add(authority.getAuthority());
-                    vu.validateMessage(authority, RuntimeException.class);
-                    if (dao.findAuthorityByBean(authority) == null) {
-                        log.debug("insert authority id = {}", dao.newAuthority(authority));
+                    if (!oriauthories.contains(authority)) {
+                        vu.validateMessage(authority, RuntimeException.class);
+                        authority.setAid(dao.newAuthority(authority));
+                        newauthories.add(authority);
+                        oriauthories.remove(authority);
+                    } else {
+                        newauthories.add(authority);
+                        oriauthories.remove(authority);
                     }
                 }
-                log.debug("Authorities remove count = {}", dao.removeAuthories(member.getAccount(), auths));
+                for (Authority authority : oriauthories) {
+                    dao.removeAuthority(authority.getAid());
+                }
+                member.setAuthorities(newauthories);
             } else {
                 dao.removeAuthories(member.getAccount());
             }

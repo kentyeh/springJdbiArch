@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.kentyeh</groupId>
     <artifactId>springJdbi</artifactId>
-    <version>2.5.5</version>
+    <version>3.0.0</version>
     <packaging>war</packaging>
 
     <name>springJdbi</name>
@@ -14,22 +14,29 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.optimize>true</maven.compiler.optimize>
-        <spring.version>4.3.8.RELEASE</spring.version>
-        <spring.security.version>4.2.2.RELEASE</spring.security.version>
-        <hazecast.version>3.8.1</hazecast.version>
+        <spring.version>5.3.8</spring.version>
+        <spring.security.version>5.5.1</spring.security.version>
+        <hazecast.version>4.2</hazecast.version>
         <hibernate.version>5.2.0.Final</hibernate.version>
-        <cucumber.version>1.2.5</cucumber.version>
-        <h2.version>1.4.195</h2.version>
-        <capsule.version>1.0.3</capsule.version>
-        <atomikos.version>4.0.4</atomikos.version>
+        <jdbi.version>3.20.1</jdbi.version>
+        <cucumber.version>6.10.4</cucumber.version>
+        <h2.version>1.4.200</h2.version>
+        <atomikos.version>5.0.8</atomikos.version>
         <maven.test.skip>false</maven.test.skip>
         <context.path>${project.artifactId}</context.path>
-        <log4j.version>2.8.2</log4j.version> 
-        <disruptor.version>3.3.6</disruptor.version>
-        <surefire.version>2.19.1</surefire.version>
+        <log4j.version>2.14.1</log4j.version> 
+        <disruptor.version>3.4.4</disruptor.version>
+        <surefire.version>2.22.2</surefire.version>
+        <findbugs.version>3.0.5</findbugs.version>
+        <pmd.version>3.14.0</pmd.version>
+        <jacoco.version>0.8.7</jacoco.version>
+        <jetty.version>9.4.42.v20210604</jetty.version>
+        <alpn.version>8.1.13.v20181017</alpn.version>
+        <glassfish.json.version>1.1.4</glassfish.json.version>
+        <aspectj.version>1.9.6</aspectj.version>
         <jndi.dsname>jdbc/JNDIDS</jndi.dsname>
         <key.alias>tomcat</key.alias>
         <key.cn>localhost</key.cn>
@@ -37,10 +44,10 @@
         <test.http.port>8080</test.http.port>
         <test.ssl.port>8443</test.ssl.port>
         <findbugs.fork>true</findbugs.fork>
-        <wroFolder>${basedir}/src/main/webapp/wro</wroFolder>
-        <jetty.version>9.3.0.RC0</jetty.version>
         <jetty.stopkey>HALT</jetty.stopkey>
         <jetty.stoport>9966</jetty.stoport>
+        <testCaptcha>jDbi</testCaptcha>
+        <hazelcastMembers></hazelcastMembers>
     </properties>
     
     <licenses>
@@ -87,11 +94,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jcl</artifactId>
-            <version>${log4j.version}</version> 
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>${log4j.version}</version> 
         </dependency>
@@ -101,7 +103,6 @@
             <version>${disruptor.version}</version>
         </dependency>
         <!--Log4j2 end-->
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
@@ -118,19 +119,19 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.session</groupId>
-            <artifactId>spring-session</artifactId>
-            <version>1.3.1.RELEASE</version>
-        </dependency>
-        <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-spring</artifactId>
             <version>${hazecast.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-hazelcast</artifactId>
+            <version>2.5.1</version>
+        </dependency>
+        <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.1</version>
         </dependency>
 	
         <!--Mobile device dection-->
@@ -147,39 +148,76 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>2.8.0</version><!--因為JDBI會連到jdk11版本,prevent jdbi use jdk11-->
+        </dependency>
+        <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi</artifactId>
-            <version>2.78</version>
+            <artifactId>jdbi3-core</artifactId>
+            <version>${jdbi.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.kentyeh</groupId>
-            <artifactId>jdbi-annotation</artifactId>
-            <version>0.1.2</version>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <version>${jdbi.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>stringtemplate</artifactId>
-            <version>3.2.1</version>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-spring5</artifactId>
+            <version>${jdbi.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-jpa</artifactId>
+            <version>${jdbi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-stringtemplate4</artifactId>
+            <version>${jdbi.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>5.4.0.Final</version>
+            <version>6.2.0.Final</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>jakarta.validation</groupId>
+                    <artifactId>jakarta.validation-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.datanucleus</groupId>
+            <artifactId>javax.persistence</artifactId>
+            <version>2.2.3</version>
         </dependency>
         <!--hibernate-validator 5.x require el-api-->
         <dependency>
             <groupId>javax.el</groupId>
-            <artifactId>el-api</artifactId>
-            <version>2.2.1-b04</version>
+            <artifactId>javax.el-api</artifactId>
+            <version>3.0.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.web</groupId>
-            <artifactId>el-impl</artifactId>
-            <version>2.2.1-b05</version>
+            <artifactId>javax.el</artifactId>
+            <version>2.2.6</version>
             <scope>runtime</scope>
         </dependency>
-        
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.json</artifactId>
+            <version>${glassfish.json.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
         <!--Add your jdbc library. 加入您自個兒的JDBC函式庫-->
         <!--Database End-->
         
@@ -188,6 +226,16 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
             <version>${spring.security.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib-jdk7</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -198,6 +246,12 @@
             <groupId>org.openid4java</groupId>
             <artifactId>openid4java</artifactId>
             <version>0.9.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -210,22 +264,45 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>javax.json</groupId>
+            <artifactId>javax.json-api</artifactId>
+            <version>1.1.4</version>
+            <scope>provided</scope>
+        </dependency>
         <!--Spring Security end-->
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>webjars-locator</artifactId>
+            <version>0.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>purecss</artifactId>
+            <version>2.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>jquery</artifactId>
+            <!--Must 3.5.1 for testNG 7.4,If not,downgrade testng version to 6.x.x-->
+            <version>3.5.1</version>
+        </dependency>
+        <!--Webjars dependencies end-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
             <version>1.2</version>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.16</version>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
+            <version>4.0.1</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>cn.apiclub.tool</groupId>
+            <artifactId>simplecaptcha</artifactId>
+            <version>1.2.2</version>
         </dependency>
         <!--Test library dependencies -->
         <dependency>
@@ -243,35 +320,23 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.11</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.beust</groupId>
-                    <artifactId>jcommander</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>1.48</version>
+            <version>7.4.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>info.cukes</groupId>
+            <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
             <version>${cucumber.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>info.cukes</groupId>
+            <groupId>io.cucumber</groupId>
             <artifactId>cucumber-testng</artifactId>
             <version>${cucumber.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>info.cukes</groupId>
+            <groupId>io.cucumber</groupId>
             <artifactId>cucumber-spring</artifactId>
             <version>${cucumber.version}</version>
             <scope>test</scope>
@@ -285,35 +350,25 @@
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
-            <version>1.2.0</version>
+            <version>2.6.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
-            <version>1.3</version>
+            <version>2.2</version>
             <scope>test</scope>
         </dependency>
-        
-        <!--Integration test with Selenium-->
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <version>2.53.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-htmlunit-driver</artifactId>
-            <version>2.52.0</version>
-            <scope>test</scope>
-        </dependency>
-        
-        <!--HtmlUnit start,Last supported version-->
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>2.24</version>
+            <version>2.50.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.w3c.css</groupId>
+            <artifactId>sac</artifactId>
+            <version>1.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -325,7 +380,7 @@
         <dependency>    
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.3</version>
+            <version>4.5.13</version>
             <scope>test</scope>
         </dependency>
         <!--For htmlunit: version conflict with openid4java -->
@@ -338,173 +393,8 @@
         <!--HtmlUnit end-->
     </dependencies>
     <prerequisites>
-        <maven>3.0.1</maven>
+        <maven>3.0.5</maven>
     </prerequisites> 
-    <profiles>
-        <profile>
-            <id>cuke</id>
-            <dependencies>
-                <dependency>
-                    <groupId>info.cukes</groupId>
-                    <artifactId>cucumber-java</artifactId>
-                    <version>${cucumber.version}</version>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.6.0</version>
-                        <executions>
-                            <execution>
-                                <phase>initialize</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath /> 
-                                <argument>cucumber.api.cli.Main</argument>
-                                <argument>-p</argument>
-                                <argument>pretty</argument>
-                                <argument>--snippets</argument>
-                                <argument>camelcase</argument>
-                                <argument>-d</argument>
-                                <argument>${basedir}/src/test/resources/features</argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>runwar</id>
-            <build>
-                <plugins>
-                    <!-- Generate ssl key store for package, 產生key store 一併打包 -->
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>keytool-maven-plugin</artifactId>
-                        <version>1.5</version>
-                        <executions>
-                            <execution>
-                                <id>genkey</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>generateKeyPair</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <keystore>${project.build.directory}/${project.artifactId}/WEB-INF/ssl.keystore</keystore>
-                            <dname>cn=${key.cn}</dname>
-                            <storepass>${key.pass}</storepass>
-                            <keypass>${key.pass}</keypass>
-                            <alias>${key.alias}</alias>
-                            <keyalg>RSA</keyalg>
-                            <validity>36525</validity>
-                        </configuration>
-                    </plugin>
-                    <!-- Package capsule necessary class and jar, 打包併入Capsule必要的類別與函式庫 -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <version>3.0.0</version>
-                        <executions>
-                            <execution>
-                                <id>unpack</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>unpack</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>co.paralleluniverse</groupId>
-                                            <artifactId>capsule</artifactId>
-                                            <version>${capsule.version}</version>
-                                            <type>jar</type>
-                                            <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/${project.artifactId}</outputDirectory>
-                                            <includes>**/*.class</includes>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>co.paralleluniverse</groupId>
-                                            <artifactId>capsule-maven</artifactId>
-                                            <version>${capsule.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/${project.artifactId}</outputDirectory>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- Copy jetty config & h2 initial schmea to pacage, 打包Jetty設定檔與H2初始化之sql-->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>3.0.2</version>
-                        <executions>
-                            <execution>
-                                <id>copy-jetty-config</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}/WEB-INF</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${basedir}/src/test/resources/runWar</directory>
-                                            <filtering>true</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-war-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <configuration>
-                            <archive>
-                                <manifestEntries>
-                                    <Main-Class>Capsule</Main-Class>
-                                    <Premain-Class>Capsule</Premain-Class>
-                                    <Caplets>co.paralleluniverse:capsule-maven:${capsule.version}</Caplets>
-                                    <Application>org.eclipse.jetty:jetty-runner:${jetty.version}</Application>
-                                    <Application-Class>org.eclipse.jetty.runner.Runner</Application-Class>
-                                    <System-Properties>catalina.home=$CAPSULE_DIR/WEB-INF org.jboss.logging.provider=log4j2</System-Properties>
-                                    <Dependencies>javax.transaction:jta:1.1 com.h2database:h2:${h2.version} com.atomikos:transactions-jta:${atomikos.version} com.atomikos:transactions-jdbc:${atomikos.version} org.slf4j:slf4j-simple:1.7.21</Dependencies>
-                                    <Allow-Snapshots>true</Allow-Snapshots>
-                                    <Min-Java-Version>1.7.0</Min-Java-Version>
-                                    <Args>--config $CAPSULE_DIR/WEB-INF/jetty.xml --path /${context.path} --stop-port ${jetty.stoport} --stop-key ${jetty.stopkey} $CAPSULE_JAR</Args>
-                                </manifestEntries>
-                            </archive>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
     <build>
         <finalName>${project.artifactId}</finalName>
         <resources>
@@ -519,61 +409,112 @@
                 <filtering>true</filtering> 
             </testResource>
         </testResources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <!--  Fixes org.apache.bcel.classfile.ClassFormatException: Invalid byte tag in constant pool: 19 -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>3.1.2</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.bcel</groupId>
+                            <artifactId>bcel</artifactId>
+                            <version>6.5.0</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <showDeprecation>true</showDeprecation>
                     <optimize>true</optimize>
+                    <verbose>false</verbose>
+                    <!--For Hbernate Validator without maven-processor-plugin-->
+                    <!--<compilerArgument>-proc:none</compilerArgument>-->
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>4.5-jdk8</version>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <processors>                                
+                                <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
+                            </processors>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-jpamodelgen</artifactId>
+                        <version>5.5.2.Final</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
                 <configuration>
                     <filesets>
-                        <fileset>
-                            <directory>${wroFolder}</directory>
+                        <fileset><!--Clean temporarily Jetty's web.xml-->
+                            <directory>${basedir}/src/test/resources</directory>
+                            <includes>
+                                <include>web.xml</include>
+                            </includes>
                             <followSymlinks>false</followSymlinks>
-                            <useDefaultExcludes>true</useDefaultExcludes>
                         </fileset>
                     </filesets>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>ro.isdc.wro4j</groupId>
-                <artifactId>wro4j-maven-plugin</artifactId>
-                <version>1.8.0</version>
-                <!--<executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
                     <execution>
-                        <phase>prepare-package</phase>
+                        <id>copy-resource-one</id>
+                        <phase>generate-sources</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>copy-resources</goal>
                         </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/src/test/resources/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/webapp/WEB-INF/</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>web.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
-                </executions>-->
-                <dependencies>
-                    
-                </dependencies>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.1</version>
                 <configuration>
-                    <targetGroups>all</targetGroups>
-                    <minimize>true</minimize>
-                    <contextFolder>${basedir}/src/main/webapp/</contextFolder>
-                    <destinationFolder>${wroFolder}</destinationFolder>
-                    <wroFile>${basedir}/src/test/resources/wro.xml</wroFile>
-                    <!--Google Closure Compile JavaScript processor-->
-                    <!--<wroManagerFactory>ro.isdc.wro.extensions.manager.standalone.GoogleStandaloneManagerFactory</wroManagerFactory>-->
-                    
-                    <!--http://wro4j.readthedocs.io/en/stable/MavenPlugin/?highlight=GoogleStandaloneManagerFactory-->
-                    <wroManagerFactory>ro.isdc.wro.maven.plugin.manager.factory.ConfigurableWroManagerFactory</wroManagerFactory>
-                    <extraConfigFile>${basedir}/src/test/resources/wro.properties</extraConfigFile>
-                    <ignoreMissingResources>false</ignoreMissingResources>
-                    <parallelProcessing>true</parallelProcessing>
+                    <webXml>${basedir}/src/test/resources/web.xml</webXml>
                 </configuration>
             </plugin>
             <plugin>
@@ -618,7 +559,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire.version}</version>
                 <configuration>
+                    <skip>false</skip>
                     <testFailureIgnore>true</testFailureIgnore>
+                    <disableXmlReport>true</disableXmlReport>
                     <systemProperties>
                         <property>
                             <name>catalina.home</name>
@@ -637,7 +580,7 @@
             <plugin>
                 <groupId>net.masterthought</groupId>
                 <artifactId>maven-cucumber-reporting</artifactId>
-                <version>3.7.0</version>
+                <version>5.5.0</version>
                 <executions>
                     <execution>
                         <id>execution</id>
@@ -648,8 +591,15 @@
                         <configuration>
                             <projectName>${project.name}</projectName>
                             <outputDirectory>${project.build.directory}/site/cucumber-reports</outputDirectory>
-                            <cucumberOutput>${project.build.directory}/cucumber.json</cucumberOutput>
-                            <enableFlashCharts>false</enableFlashCharts>
+                            <inputDirectory>${project.build.directory}/cucumber-reports</inputDirectory>
+                            <jsonFiles>
+                                <param>cucumber.json</param>
+                            </jsonFiles>
+                            <parallelTesting>false</parallelTesting>
+                            <mergeFeaturesById>false</mergeFeaturesById>
+                            <mergeFeaturesWithRetest>false</mergeFeaturesWithRetest>
+                            <checkBuildResult>false</checkBuildResult>
+                            <skip>${skipTests}</skip>
                         </configuration>
                     </execution>
                 </executions>
@@ -658,53 +608,75 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.7</version>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
-                        <phase>pre-site</phase>
+                        <id>pre-test</id>
+                        <phase>process-test-classes</phase>
                         <goals>
-                            <goal>cobertura</goal>
+                            <goal>prepare-agent</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>post-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/site/jacoco-ut</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report-integration</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>report-integration</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/site/jacoco-it</outputDirectory>
+                        </configuration>
                     </execution>
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>net.sourceforge.cobertura</groupId>
-                        <artifactId>cobertura</artifactId>
-                        <version>2.1.1</version>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjtools</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjrt</artifactId>
+                        <version>${aspectj.version}</version>
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <argLine>-XX:-UseSplitVerifier</argLine>
+                    <excludes>
+                        <exclude>com/hazelcast/**</exclude>
+                        <exclude>com/gargoylesoftware/htmlunit/**</exclude>
+                        <exclude>com/gargoylesoftware/css/parser/**</exclude>
+                        <!--<exclude>com/steadystate/**</exclude>-->
+                    </excludes>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.8</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                            <goal>cpd-check</goal>
-                        </goals>
-                    </execution>
-                </executions>   
-                <configuration>
-                    <failOnViolation>false</failOnViolation>
-                    <linkXref>true</linkXref>
-                    <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
-                    <minimumTokens>100</minimumTokens><!--minimun token duplicated think as source duplicated-->
-                    <targetJdk>${maven.compiler.target}</targetJdk>
-                    <verbose>true</verbose>
-                </configuration> 
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.4</version>
+                <version>${findbugs.version}</version>
                 <executions>
                     <execution>
                         <id>check</id>
@@ -715,6 +687,7 @@
                     </execution>
                 </executions>   
                 <configuration>
+                    <failOnError>false</failOnError>
                     <effort>Max</effort><!--Detect Level:Min,Default or Max-->
                     <xmlOutput>true</xmlOutput>
                     <fork>${findbugs.fork}</fork>
@@ -747,7 +720,10 @@
                     <keypass>${key.pass}</keypass>
                     <alias>${key.alias}</alias>
                     <keyalg>RSA</keyalg>
-                    <validity>36525</validity>
+                    <validity>398</validity>
+                    <storetype>pkcs12</storetype>
+                    <skipIfExist>true</skipIfExist>
+                    <verbose>true</verbose>
                 </configuration>
             </plugin>
             <plugin>
@@ -764,6 +740,16 @@
                         <configuration>
                             <scanIntervalSeconds>0</scanIntervalSeconds>
                             <daemon>true</daemon>
+                            <systemProperties>
+                                <systemProperty>
+                                    <name>captcha</name>
+                                    <value>${testCaptcha}</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>catalina.home</name>
+                                    <value>${project.build.directory}</value>
+                                </systemProperty>
+                            </systemProperties>
                         </configuration>   
                     </execution> 
                     <execution>
@@ -775,6 +761,21 @@
                     </execution>
                 </executions>
                 <dependencies>
+                    <dependency>
+                        <groupId>org.glassfish</groupId>
+                        <artifactId>javax.json</artifactId>
+                        <version>${glassfish.json.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-slf4j-impl</artifactId>
+                        <version>${log4j.version}</version> 
+                    </dependency>
+                    <dependency>
+                        <groupId>org.conscrypt</groupId>
+                        <artifactId>conscrypt-openjdk-uber</artifactId>
+                        <version>2.5.2</version>
+                    </dependency>
                     <dependency>
                         <groupId>com.h2database</groupId>
                         <artifactId>h2</artifactId>
@@ -788,6 +789,11 @@
                     <dependency>
                         <groupId>com.atomikos</groupId>
                         <artifactId>transactions-jta</artifactId>
+                        <version>${atomikos.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.atomikos</groupId>
+                        <artifactId>transactions-api</artifactId>
                         <version>${atomikos.version}</version>
                     </dependency>
                 </dependencies>
@@ -805,18 +811,26 @@
                             <name>org.jboss.logging.provider</name>
                             <value>log4j2</value>
                         </systemProperty>
+                        <systemProperty>
+                            <name>ignoreXxeProtectionFailures</name>
+                            <value>false</value>
+                        </systemProperty>
                     </systemProperties>
+                    <jvmArgs>
+                        -Xbootclasspath/p:${settings.localRepository}/org/mortbay/jetty/alpn/alpn-boot/${alpn.version}/alpn-boot-${alpn.version}.jar
+                    </jvmArgs>
                     <scanIntervalSeconds>10</scanIntervalSeconds>
                     <jettyXml>${project.build.testOutputDirectory}/jetty-server.xml</jettyXml>
                     <webApp>
                         <contextPath>/${context.path}</contextPath>
                         <jettyEnvXml>${project.build.testOutputDirectory}/jetty-env.xml</jettyEnvXml>
+                        <descriptor>${project.build.testOutputDirectory}/web.xml</descriptor>
                     </webApp>
                     <httpConnector>
                         <port>${test.http.port}</port>
                     </httpConnector>
                     <requestLog implementation="org.eclipse.jetty.server.NCSARequestLog">
-                        <filename>${project.build.directory}/logs/jetty_yyyy_mm_dd.request.log</filename>
+                        <filename>${project.build.testOutputDirectory}/jetty_yyyy_mm_dd.request.log</filename>
                         <retainDays>90</retainDays>
                         <append>true</append>
                         <extended>false</extended>
@@ -826,81 +840,25 @@
                     <stopPort>${jetty.stoport}</stopPort>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.2</version>
-                <!-- Enabled excutions section for integration test-->
-                <!--executions>
-                    <execution>
-                        <id>start-tomcat</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <daemon>true</daemon>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop-tomcat</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>shutdown</goal>
-                        </goals>
-                    </execution>
-                </executions-->
-                <dependencies>   
-                    <dependency>
-                        <groupId>com.h2database</groupId>
-                        <artifactId>h2</artifactId>
-                        <version>${h2.version}</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <protocol>org.apache.coyote.http11.Http11NioProtocol</protocol>
-                    <delegate>true</delegate>
-                    <contextReloadable>true</contextReloadable>
-                    <contextFile>${basedir}/src/test/resources/tomcat-context.xml</contextFile>
-                    <uriEncoding>UTF-8</uriEncoding>
-                    <port>${test.http.port}</port>
-                    <httpsPort>${test.ssl.port}</httpsPort>
-                    <path>/${context.path}</path>
-                    <keystoreFile>${project.build.directory}/ssl.keystore</keystoreFile>
-                    <keystorePass>${key.pass}</keystorePass>
-                    <!--true for integration testing, false for stand alone web start-->
-                    <fork>false</fork>
-                    <systemProperties>
-                        <catalina.home>${project.build.directory}</catalina.home>
-                        <org.jboss.logging.provider>log4j2</org.jboss.logging.provider>
-                    </systemProperties>
-                    <systemProperties>
-                        <org.jboss.logging.provider>log4j2</org.jboss.logging.provider>
-                    </systemProperties>
-                    <skipErrorOnShutdown>true</skipErrorOnShutdown>
-                </configuration>
-            </plugin>
             <!--Site Report Configuration,報表管理-->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.6</version>
+                <version>3.9.1</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.maven.doxia</groupId>
                         <artifactId>doxia-module-markdown</artifactId>
-                        <version>1.7</version>
+                        <version>1.9.1</version>
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <!--Uncomment if jdk 6~7.*-->
-                    <!--argLine>-XX:-UseSplitVerifier</argLine-->
-                    <!--https://maven.apache.org/plugins/maven-site-plugin/l10n-status.html-->
                     <locales>zh_TW</locales>
                     <reportPlugins>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-project-info-reports-plugin</artifactId>
-                            <version>2.9</version>
+                            <version>3.1.2</version>
                             <configuration>
                                 <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
                             </configuration>
@@ -920,106 +878,136 @@
                                         <report>summary</report><!--專案摘要 (Project Summary)-->
                                         <report>dependencies</report> <!--專案依賴 (Project Dependencies)-->
                                         <report>dependency-management</report>
+                                        <report>dependency-convergence</report><!--**-->
+                                        <report>dependency-info</report><!--**-->
                                         <report>modules</report>
                                     </reports>
                                 </reportSet>
                             </reportSets>
                         </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-javadoc-plugin</artifactId>
-                            <version>2.10.4</version>
-                            <configuration>
-                                <aggregate>true</aggregate>
-                                <minmemory>128m</minmemory>
-                                <maxmemory>512</maxmemory>
-                                <breakiterator>true</breakiterator>
-                                <failOnError>false</failOnError>
-                                <quiet>true</quiet>
-                                <source>${maven.compiler.source}</source>
-                                <verbose>false</verbose>
-                                <linksource>true</linksource>
-                                <links>
-                                    <link>http://docs.oracle.com/javase/8/docs/api/</link>
-                                    <link>http://docs.oracle.com/javaee/7/api/</link>
-                                    <link>http://docs.spring.io/spring/docs/current/javadoc-api/</link>
-                                    <link>http://docs.spring.io/spring-security/site/docs/current/apidocs/</link>
-                                    <link>http://docs.spring.io/spring-mobile/docs/current/api/</link>
-                                    <link>http://docs.jboss.org/hibernate/stable/core/javadocs/</link>
-                                    <link>http://logging.apache.org/log4j/2.x/log4j-api/apidocs/</link>
-                                    <link>http://logging.apache.org/log4j/2.x/log4j-core/apidocs/</link>
-                                    <link>http://jdbi.org/apidocs/</link>
-                                </links>
-                                <!--Uncomment if jdk 8-->
-                                <!--additionalparam>-Xdoclint:none</additionalparam-->
-                            </configuration>
-                            <reportSets>
-                                <reportSet>
-                                    <id>javadoc</id>
-                                    <reports>
-                                        <report>javadoc</report>
-                                        <!--report>test-javadoc</report-->
-                                    </reports>
-                                </reportSet>
-                            </reportSets>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-jxr-plugin</artifactId>
-                            <version>2.5</version>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-pmd-plugin</artifactId>
-                            <version>3.8</version>
-                            <configuration>
-                                <failOnViolation>false</failOnViolation>
-                                <linkXref>true</linkXref>
-                                <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
-                                <minimumTokens>100</minimumTokens><!--minimun token duplicated think as source duplicated-->
-                                <targetJdk>${maven.compiler.target}</targetJdk>
-                                <verbose>true</verbose>
-                            </configuration> 
-                        </plugin>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>findbugs-maven-plugin</artifactId>
-                            <version>3.0.4</version>
-                            <configuration>
-                                <failOnError>false</failOnError>
-                                <xmlOutputDirectory>${project.build.directory}/site</xmlOutputDirectory>
-                                <effort>Max</effort><!--Detect Level:Min,Default or Max-->
-                                <xmlOutput>true</xmlOutput>
-                                <fork>${findbugs.fork}</fork>
-                            </configuration>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-report-plugin</artifactId>
-                            <version>${surefire.version}</version>
-                            <reportSets>
-                                <reportSet>
-                                    <id>integration-tests</id>
-                                    <reports>
-                                        <!--Alternatives ，二選一
-                                            report: invoke test ，會引發測試
-                                            report-only: invoke test ，不會引發測試，但是之前必須經過測試
-                                        -->
-                                        <!--<report>report</report>--> 
-                                        <report>report-only</report>
-                                        <report>failsafe-report-only</report>
-                                    </reports>
-                                </reportSet>
-                            </reportSets>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>cobertura-maven-plugin</artifactId>
-                            <version>2.6</version>
-                        </plugin>
                     </reportPlugins>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <executions>
+                    <execution>
+                        <id>enforce-bytecode-version</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <enforceBytecodeVersion>
+                                    <maxJdkVersion>${maven.compiler.target}</maxJdkVersion>
+                                    <excludes>
+                                        <exclude>org.mindrot:jbcrypt</exclude>
+                                    </excludes>
+                                </enforceBytecodeVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>extra-enforcer-rules</artifactId>
+                        <version>1.3</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <aggregate>true</aggregate>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <minmemory>128m</minmemory>
+                    <maxmemory>512</maxmemory>
+                    <breakiterator>true</breakiterator>
+                    <failOnError>false</failOnError>
+                    <quiet>true</quiet>
+                    <source>${maven.compiler.source}</source>
+                    <verbose>false</verbose>
+                    <linksource>true</linksource>
+                    <links>
+                        <link>https://docs.oracle.com/javase/8/docs/api/</link>
+                        <link>https://docs.oracle.com/javaee/7/api/</link>
+                        <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
+                        <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
+                        <link>https://docs.spring.io/spring-mobile/docs/current/api/</link>
+                        <link>https://docs.jboss.org/hibernate/stable/core/javadocs/</link>
+                        <link>https://logging.apache.org/log4j/2.x/log4j-api/apidocs/</link>
+                        <link>https://logging.apache.org/log4j/2.x/log4j-core/apidocs/</link>
+                        <!--Jdbi3 support element-list and no more package-list-->
+                    </links>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <junitReport>true</junitReport>
+                    <exportAll>true</exportAll>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <id>integration-tests</id>
+                        <reports>
+                            <!--**-only means generate report contains last test result.-->
+                            <report>report-only</report>
+                            <report>failsafe-report-only</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.14.0</version>
+                <configuration>
+                    <failOnViolation>false</failOnViolation>
+                    <linkXref>true</linkXref>
+                    <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
+                    <minimumTokens>100</minimumTokens><!--minimun token duplicated think as source duplicated-->
+                    <targetJdk>${maven.compiler.target}</targetJdk>
+                    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs.version}</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <xmlOutputDirectory>${project.build.directory}/site</xmlOutputDirectory>
+                    <effort>Max</effort><!--Detect Level:Min,Default or Max-->
+                    <xmlOutput>true</xmlOutput>
+                    <fork>${findbugs.fork}</fork>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

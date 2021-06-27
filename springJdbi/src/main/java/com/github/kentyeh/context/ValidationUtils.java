@@ -53,7 +53,7 @@ public class ValidationUtils {
         if (validator != null) {
             return validator.getValidator().validate(entity);
         } else {
-            return Collections.EMPTY_SET;
+            return Collections.<ConstraintViolation<T>>emptySet();
         }
     }
 

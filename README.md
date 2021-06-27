@@ -1,17 +1,17 @@
 # springJdbiArch
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.kentyeh/springJdbiArch/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.kentyeh/springJdbiArch)
-[![Contributor](http://wsbadge.herokuapp.com/badge/Developer-Kent%20Yeh-oragnle.svg)](https://github.com/kentyeh)
 
-Sample arthetype form [Spring](http://projects.spring.io/spring-framework/),[spring security](http://projects.spring.io/spring-security/) and [JDBI](http://jdbi.org/).
 
-## Usage ###
+Sample arthetype form [Spring](http://projects.spring.io/spring-framework/),[spring security](http://projects.spring.io/spring-security/) , [JDBI3](http://jdbi.org/) and [Hazelcast IMDB](https://docs.hazelcast.com/imdg/4.2/index.html).
+
+### Usage ###
 generate sample project:
 ```
 mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
--DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=2.5.5
+-DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=3.0.0
 ```
-#### After generation####
+#### After generation ####
 * Test Program
 
   ```
@@ -22,47 +22,27 @@ mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
   ```
   mvn integration-test 
   ```
-* generate document
+* verify and generate document
 
   ```
-  mvn site
+  mvn verify site
   ```
 * running program
 
   ```
-  mvn jetty:run&
+  mvn jetty:run &
   ```
 
 ### MISC
 
-* If you change [cucumber](https://cucumber.io/) step definitions, use follow command to regenerate function prototype.
-
-  ```
-  mvn -Pcuke initialize
-  ```
-* If you with to build a runnable war (by  [capsule](http://www.capsule.io/))
-
-  ```
-  mvn -Prunwar package
-  java -jar yourFinalBuildPackage.war
-  ```
-
-
-* Clean will remove folder: ./target and ./src/main/webapp/wro
-
-  ```
-  mvn clean
-  ```
-
-* Regenerate compressed css and javascript if one of them to be changed or cleaned.
-
-  ```
-  mvn wro4j:run
-  ```
-
-* Find your code problems after compiled.(by [FindBugs](http://findbugs.sourceforge.net/)).
+* Find your code problems after compiled.(by [FindBugs](http://findbugs.sourceforge.net/).
 
   ```
   mvn test-compile findbugs:gui
   ```
 
+* It is suitable for small-scale clusters. If you decide to deploy to several nodes (an odd number is more helpful to an even number), open pom.xml and fill in the node's IP into <hazelcastMembers>
+
+  ```
+  <hazelcastMembers>192.168.0.100,192.168.0.101,192.168.0.102</hazelcastMembers>
+  ``

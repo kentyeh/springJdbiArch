@@ -2,11 +2,12 @@ package com.github.kentyeh.cucumber;
 
 import com.github.kentyeh.manager.TestMemberManager;
 import com.github.kentyeh.model.Member;
-import cucumber.api.java.Before;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
-import lombok.extern.log4j.Log4j2;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -30,9 +31,9 @@ import org.springframework.web.context.WebApplicationContext;
  */
 @WebAppConfiguration
 @ContextConfiguration(classes = com.github.kentyeh.context.TestContext.class)
-@Log4j2
 public class DemoFeatureTwStepDef {
 
+    private static final Logger logger = LogManager.getLogger(DemoFeatureTwStepDef.class);
     @Autowired
     protected WebApplicationContext wac;
     @Autowired
@@ -46,12 +47,12 @@ public class DemoFeatureTwStepDef {
 
     @Given("^系統人員已完成登錄$")
     public void adminAuthoritied() throws Exception {
-        log.debug("系統人員已完成登錄");
+        logger.debug("系統人員已完成登錄");
     }
 
     @When("^系統人員點選查詢所有人員資訊$")
     public void adminWhen() {
-        log.debug("系統人員點選查詢所有人員資訊");
+        logger.debug("系統人員點選查詢所有人員資訊");
     }
 
     @Then("^顯示人員數應與所有人員數相等$")
@@ -61,12 +62,12 @@ public class DemoFeatureTwStepDef {
 
     @Given("^用戶\"([^\"]*)\"已完成登錄$")
     public void alreadyLogin(String user) throws Throwable {
-        log.debug("{}已完成登錄", user);
+        logger.debug("{}已完成登錄", user);
     }
 
     @When("^\"([^\"]*)\"點選我的個人資料$")
     public void clickMyInfo(String user) throws Throwable {
-        log.debug("{}點選我的個人資料$", user);
+        logger.debug("{}點選我的個人資料$", user);
     }
 
     @Then("^顯示\"([^\"]*)\"的個資$")

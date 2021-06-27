@@ -1,23 +1,32 @@
 package com.github.kentyeh.context;
 
-import lombok.extern.log4j.Log4j2;
-import org.skife.jdbi.v2.logging.FormattedLog;
+import java.sql.SQLException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jdbi.v3.core.statement.SqlLogger;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  *
  * @author Kent Yeh
  */
-@Log4j2
-public class JdbiLog extends FormattedLog {
+public class JdbiLog implements SqlLogger {
 
-
+    private static final Logger logger = LogManager.getLogger(JdbiLog.class);
     @Override
-    protected boolean isEnabled() {
-        return true;
+    public void logException(StatementContext context, SQLException ex) {
+        logger.error("Execute SQL:\n" + context.getRenderedSql() + "\nwith " + context.getBinding().toString()
+                + "\nFailed:" + ex.getMessage(), ex);
     }
 
     @Override
-    protected void log(String string) {
-        log.debug(string);
+    public void logAfterExecution(StatementContext context) {
+        logger.debug("run SQL:\n" + context.getRenderedSql() + "\nwith " + context.getBinding().toString());
     }
+
+    @Override
+    public void logBeforeExecution(StatementContext context) {
+
+    }
+
 }

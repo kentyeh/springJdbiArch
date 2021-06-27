@@ -1,16 +1,20 @@
 package com.github.kentyeh.context;
 
 import com.github.kentyeh.model.TestDao;
-import javax.sql.DataSource;
-import org.skife.jdbi.v2.DBI;
-import org.skife.jdbi.v2.spring.DBIFactoryBean;
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import javax.servlet.ServletContext;
+import org.jdbi.v3.core.Jdbi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Scope;
+import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 
 /**
  *
@@ -19,36 +23,27 @@ import org.springframework.context.annotation.Scope;
 @Configuration
 @ImportResource({"classpath:testContext.xml", "classpath:applicationContext-security.xml"})
 @ComponentScan("com.github.kentyeh.manager")
+@EnableCaching
+@EnableHazelcastHttpSession()
 public class TestContext {
-    
+
+    private Jdbi jdbi;
+    private ServletContext servletContext;
+
     @Autowired
-    private DataSource datasource;
-    
-    @Bean
-    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public JdbiLog jdbiLog() {
-        return new JdbiLog();
+    public void setJdbi(Jdbi jdbi) {
+        this.jdbi = jdbi;
     }
-    
-    @Bean
-    public DBIFactoryBean dBIFactoryBean() {
-        DBIFactoryBean res = new DBIFactoryBean();
-        res.setDataSource(datasource);
-        return res;
+
+    @Autowired
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
-    
-    @Bean
+
+    @Bean(destroyMethod = "close")
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public DBI dbi() throws Exception {
-        DBI dbi = (DBI) dBIFactoryBean().getObject();
-        dbi.setSQLLog(jdbiLog());
-        return dbi;
-    }
-    
-    @Bean
-    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public TestDao testDao() throws Exception {
-        return dbi().open(TestDao.class);
+    public TestDao testDao() {
+        return jdbi.open().attach(TestDao.class);
     }
 
     @Bean
@@ -56,8 +51,15 @@ public class TestContext {
         return new CustomUserService();
     }
 
+    @Bean(destroyMethod = "shutdown")
+    public HazelcastInstance hazelcastInstance() {
+        HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(clientConfig());
+        servletContext.setAttribute("hazelcastInstance", hazelcastInstance);
+        return hazelcastInstance;
+    }
+
     @Bean
-    public ValidationUtils validationUtils() {
-        return new ValidationUtils();
+    public Config clientConfig() {
+        return SpringSessionListener.createHazelcastConfig(servletContext);
     }
 }

@@ -1,7 +1,8 @@
 package com.github.kentyeh.model;
 
 import java.util.List;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.jdbi.v3.sqlobject.customizer.BindList;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 
 /**
  *
@@ -13,6 +14,9 @@ public interface TestDao extends Dao {
     int countUsers();
     
     @SqlQuery("SELECT count(8) FROM appmember WHERE EXISTS(SELECT 1 FROM authorities"
-            + " WHERE authorities.account=appmember.account AND ARRAY_CONTAINS( :auths ,authority) )")
-    int countAdminOrUser(@BindStringList("auths") List<String> authoritues);
+            + " WHERE authorities.account=appmember.account AND ARRAY_CONTAINS(ARRAY[ <auths> ],authority))")
+    int countAdminOrUser(@BindList("auths") List<String> auths);
+    
+    @SqlQuery("SELECT member FROM hzmembers")
+    List<String> queryHzMembers();
 }

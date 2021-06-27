@@ -4,16 +4,17 @@ import java.beans.PropertyEditorSupport;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.util.StringUtils;
 
 /**
  *
  * @author Kent Yeh
  */
-@Log4j2
 public class DatePropertyEditor extends PropertyEditorSupport {
 
+    private static final Logger logger = LogManager.getLogger(DatePropertyEditor.class);
     private static final Map<String, String> patterns = new HashMap<>();
 
     static {
@@ -45,7 +46,7 @@ public class DatePropertyEditor extends PropertyEditorSupport {
                     try {
                         dateObj = df.parse(text);
                     } catch (Exception e) {
-                        log.error(String.format("轉換日期%s[%s]失敗", text, entry.getKey()), e.getMessage(), e);
+                        logger.error(String.format("Failed to convert:%s[%s]", text, entry.getKey()), e.getMessage(), e);
                     }
                     break;
                 }

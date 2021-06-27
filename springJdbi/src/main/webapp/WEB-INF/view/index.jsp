@@ -1,17 +1,21 @@
+<%-- 
+    Author     : Kent Yeh
+--%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
 <%--Context path--%>
 <c:set var="cp" value="${pageContext.request.contextPath}"/>
-<!DOCTYPE html>
+<!DOCTYPE html><sec:authorize access="authenticated" var="logined"><sec:authorize access="hasRole('ROLE_ADMIN')" var="isAdmin"/><sec:authentication property="principal.username" var="username"/></sec:authorize>
 <html>
     <head>
-        <meta charset="utf-8"/>
-        <title>Home page</title>
-        <link rel="stylesheet" href="${cp}/wro/all.css"/>
-        <script src="${cp}/wro/all.js"></script>
-        <script>
+        <meta charset="utf-8"/><fmt:message key="hello" var="hello"/><fmt:message key="world" var="world"/>
+        <title>${hello} ${empty username?world:username}!</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="${cp}/static/purecss/build/pure-min.css" type="text/css" media="screen"/>
+        <script type="text/javascript" src="${cp}/static/jquery/jquery.min.js"></script>
+        <script><c:if test="${isAdmin}">
             function ajaxGetUser(path){
                 $.ajax({
                     type : "POST",
@@ -23,67 +27,98 @@
                     error:function(jqXHR,  statusText){
                         alert("Exception prone when fetch users' data with "+statusText+":["+jqXHR.status+"]:"+jqXHR.statusText+"\n\t"+jqXHR.responseText);
                     },
-                    success:function(data){  
+                    success:function(data){
                         if(data.total==0){
                             $("#listuser").html("");
                         }else{
-                            var html="<table class=\"mdl-data-table mdl-js-data-table mdl-shadow--2dp\"><thead><tr><th class=\"mdl-data-table__cell--non-numeric\"><fmt:message key="account"/></th><th class=\"mdl-data-table__cell--non-numeric\"><fmt:message key="name"/></th><th class=\"mdl-data-table__cell--non-numeric\"><fmt:message key="birthday"/></th></tr></thead><tbody>";
+                            var html="<table class=\"pure-table\"><thead><tr><th><fmt:message key="account"/></th><th><fmt:message key="name"/></th><th><fmt:message key="birthday"/></th></tr></thead><tbody>";
                             for(var i=0;i<data.total;i++){
                                 var user = data.users[i];
-                                <sec:authorize access="hasRole('ROLE_ADMIN')" var="isAdmin">
-                                html = html + "<tr><td class=\"mdl-data-table__cell--non-numeric\"><a class=\"mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent\" href=\"${cp}/member/edit/"+user.account+"\"><i class=\"material-icons\">&#xE254;</i>"+user.account+"</a></td><td class=\"mdl-data-table__cell--non-numeric\">"+user.name+"</td><td class=\"mdl-data-table__cell--non-numeric\">"+user.birthday+"</td></tr>";
-                                </sec:authorize>
+                                <c:if test="${isAdmin}">
+                                html = html + "<tr><td><a class=\"pure-button pure-button-primary\" href=\"${cp}/member/edit/"+user.account+"\">&#128736;&nbsp;"+user.account+"</a></td><td>"+user.name+"</td><td>"+user.birthday+"</td></tr>";
+                                </c:if>
                                 <c:if test="${not isAdmin}">
-                                html = html + "<tr><td class=\"mdl-data-table__cell--non-numeric\">"+user.account+"</td><td class=\"mdl-data-table__cell--non-numeric\">"+user.name+"</td><td class=\"mdl-data-table__cell--non-numeric\">"+user.birthday+"</td></tr>";
+                                html = html + "<tr><td>"+user.account+"</td><td>"+user.name+"</td><td>"+user.birthday+"</td></tr>";
                                 </c:if>
                             }
                             html += "</tbody></table>";
-                            $("#listuser").hide().html(html).show("bounce",{},2000);
+                            $("#listuser").hide().html(html).show();
                         }
                     }
                 });
+            }</c:if><c:if test="${logined}">
+            function like(){
+                $.ajax({
+                    type : "POST",
+                    url : "${cp}/user/like",
+                    dataType : "json",
+                    headers: {"${_csrf.headerName}":"${_csrf.token}"},
+                    data: {},
+                    cache: false,
+                    error:function(jqXHR,  statusText){
+                        alert("Exception prone when fetch users like with "+statusText+":["+jqXHR.status+"]:"+jqXHR.statusText+"\n\t"+jqXHR.responseText);
+                    },
+                    success:function(data){
+                        $("#like").html(data.count);
+                    }
+                });
             }
-            $(function() {
-                $("center") .show("puff");
-            });
-        </script>
+            function dislike(){
+                $.ajax({
+                    type : "POST",
+                    url : "${cp}/user/dislike",
+                    dataType : "json",
+                    headers: {"${_csrf.headerName}":"${_csrf.token}"},
+                    data: {},
+                    cache: false,
+                    error:function(jqXHR,  statusText){
+                        alert("Exception prone when fetch users dislike with "+statusText+":["+jqXHR.status+"]:"+jqXHR.statusText+"\n\t"+jqXHR.responseText);
+                    },
+                    success:function(data){
+                        $("#dislike").html(data.count);
+                    }
+                });
+            }
+        </c:if></script>
     </head>
-    <body>
-        <table border="0" style="width:100%;position: fixed;top: 3px">
-            <sec:authorize access="authenticated" var="logined">
+    <body><c:if test="${not logined}"><h1 style="text-align:center">Server @ ${pageContext.request.localAddr}</h1></c:if>
+        <table style="width:100%;position: fixed;top: 3px"><tbody>
+            <c:if test="${logined}">
                 <tr>
-                    <td><a href="${cp}/changePassword" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-                            <i class="material-icons">&#xE90D;</i><fmt:message key="changePassword"/></a></td>
-                    <td align="right">
+                    <td style="max-width: 200pt"><a href="${cp}/changePassword" class="pure-button pure-button-primary">
+                            &#128273;&nbsp;<fmt:message key="changePassword"/></a>
+                            &nbsp;<button class="pure-button pure-button-primary" onclick="like()">&#128077;<span id="like">${like}</span></button>
+                    </td>
+                    <td style="text-align: right">
+                        <button class="pure-button pure-button-primary" onclick="dislike()">&#128078;<span id="dislike">${dislike}</span></button>&nbsp;
                         <form action="${cp}/j_spring_security_logout" method="post" style="display: inline">
                             <!--<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>-->
                             <sec:csrfInput />
-                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-                                <sec:authentication property="principal.username"/>&nbsp;<fmt:message key="logout"/>
-                            <i class="material-icons">&#xE879;</i></button>
+                            <button class="pure-button pure-button-primary">
+                                <sec:authentication property="principal.username"/>&nbsp;<fmt:message key="logout"/>&nbsp;&#10144;</button>
                         </form>
                     </td>
                 </tr>
-            </sec:authorize>
+            </c:if>
             <c:if test="${not logined}">
                 <tr>
-                    <td align="right"><a href="${cp}/user/myinfo" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"><fmt:message key="myinfo"/></a></td>
+                    <td align="right"><a href="${cp}/user/myinfo" class="pure-button pure-button-primary"><fmt:message key="myinfo"/></a></td>
                 </tr>
             </c:if>
-        </table>
+        </tbody></table>
 
-    <center  style="display: none"><c:set var="world"><fmt:message key="world"/></c:set>
-        <h1 class="mdl-shadow--3dp"><fmt:message key="hello"/> ${empty member?world:member.name}</h1>
+    <center  style="display: block">
+        <h1></h1>
         <c:if test="${not empty member}">
-            <table id="myinfo" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-                <thead><tr><th colspan="2" class="mdl-data-table__cell--non-numeric"><fmt:message key="myinfo"/></th></tr></thead>
+            <table id="myinfo" class="pure-table">
+                <thead><tr><th colspan="2" style="text-align:center"><fmt:message key="myinfo"/></th></tr></thead>
                 <tbody>
-                    <tr><td class="mdl-data-table__cell--non-numeric"><fmt:message key="account"/>:</td><td class="mdl-data-table__cell--non-numeric">${member.account}</td></tr>
-                    <tr><td class="mdl-data-table__cell--non-numeric"><fmt:message key="name"/>:</td><td class="mdl-data-table__cell--non-numeric">${member.name}</td></tr>
-                    <tr><td class="mdl-data-table__cell--non-numeric"><fmt:message key="enabled"/>:</td><td class="mdl-data-table__cell--non-numeric"><c:if test="${'Y' eq member.enabled}"><fmt:message key="true"/></c:if>
+                    <tr><td><fmt:message key="account"/>:</td><td>${member.account}</td></tr>
+                    <tr><td><fmt:message key="name"/>:</td><td>${member.name}</td></tr>
+                    <tr><td><fmt:message key="enabled"/>:</td><td><c:if test="${'Y' eq member.enabled}"><fmt:message key="true"/></c:if>
                         <c:if test="${'Y' ne member.enabled}"><fmt:message key="false"/></c:if></td></tr>
-                    <tr><td class="mdl-data-table__cell--non-numeric"><fmt:message key="birthday"/>:</td><td class="mdl-data-table__cell--non-numeric"><fmt:formatDate value="${member.birthday}" pattern="yyyy/MM/dd"/></td></tr>
-                    <tr><td class="mdl-data-table__cell--non-numeric"><fmt:message key="role"/>:</td><td class="mdl-data-table__cell--non-numeric">
+                    <tr><td><fmt:message key="birthday"/>:</td><td><fmt:formatDate value="${member.birthday}" pattern="yyyy/MM/dd"/></td></tr>
+                    <tr><td><fmt:message key="role"/>:</td><td>
                         <c:forEach var="authority" items="${member.authorities}">
                             ${authority.authority}&nbsp;
                         </c:forEach>
@@ -91,11 +126,12 @@
                 </tbody>
             </table>
         </c:if><br/>
-        <c:set var="adminAjaxList"><fmt:message key="adminAjaxList"/></c:set>
-        <c:set var="adminUserAjaxList"><fmt:message key="adminUserAjaxList"/></c:set>
-        <input type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="ajaxGetUser()" value="<c:out value="${adminAjaxList}" escapeXml="true"/>"/>
-        <input type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="ajaxGetUser('adminOrUsers')" value="<c:out value="${adminUserAjaxList}" escapeXml="true"/>"/>
-        <div id="listuser" style="margin-top: 10px"></div>
+        <sec:authorize access="hasRole('ROLE_ADMIN')" var="isAdmin">
+        <fmt:message key="adminAjaxList" var="adminAjaxList"/>
+        <fmt:message key="adminUserAjaxList" var="adminUserAjaxList"/>
+        <input type="button" class="pure-button pure-button-primary" onclick="ajaxGetUser()" value="<c:out value="${adminAjaxList}" escapeXml="true"/>"/>
+        <input type="button" class="pure-button pure-button-primary" onclick="ajaxGetUser('adminOrUsers')" value="<c:out value="${adminUserAjaxList}" escapeXml="true"/>"/>
+        <div id="listuser" style="margin-top: 10px"></div></sec:authorize>
     </center>
 </body>
 </html>

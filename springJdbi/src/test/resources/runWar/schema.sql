@@ -1,3 +1,7 @@
+CREATE TABLE IF NOT EXISTS hzmembers(
+   member varchar(15) primary key
+);
+
 CREATE TABLE IF NOT EXISTS appmember(
   account varchar(10) primary key,
   name   varchar(16) not null,

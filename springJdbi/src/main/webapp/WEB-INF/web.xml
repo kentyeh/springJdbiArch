@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app metadata-complete="true" version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+<web-app metadata-complete="true" version="3.1" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/javaee/web-app_3_1.xsd">
     <display-name>springJdbi</display-name>
     <context-param>
         <description>Spring Configure</description>
@@ -10,6 +11,10 @@
         <description>Enable Spring Annotation</description>
         <param-name>contextClass</param-name>
         <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+    </context-param>
+    <context-param>
+        <param-name>defaultHtmlEscape</param-name>
+        <param-value>true</param-value>
     </context-param>
     <filter>
         <description>Specify a character encoding for requests</description>
@@ -25,35 +30,25 @@
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
-    <!-- problem look at https://issues.apache.org/jira/browse/LOG4J2-359 -->
-    <!--filter>
-        <filter-name>log4jServletFilter</filter-name>
-        <filter-class>org.apache.logging.log4j.core.web.Log4jServletFilter</filter-class>
-    </filter-->
     <filter-mapping>
         <filter-name>encodingFilter</filter-name>
         <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
     <filter-mapping>
         <filter-name>springSecurityFilterChain</filter-name>
         <servlet-name>springServlet</servlet-name>
     </filter-mapping>
-    <!-- problem look at https://issues.apache.org/jira/browse/LOG4J2-359 -->
-    <!--filter-mapping>
-        <filter-name>log4jServletFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-        <dispatcher>ERROR</dispatcher>
-    </filter-mapping-->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
-    <!-- problem look at https://issues.apache.org/jira/browse/LOG4J2-359 -->
-    <!--listener>
-        <listener-class>org.apache.logging.log4j.core.web.Log4jServletContextListener</listener-class>
-    </listener-->
+    <context-param>
+        <param-name>hazelcastMembers</param-name>
+        <param-value>${hazelcastMembers}</param-value>
+    </context-param>
+    <listener>
+        <listener-class>com.github.kentyeh.context.SpringSessionListener</listener-class>
+    </listener>
     <servlet>
         <servlet-name>springServlet</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -66,14 +61,6 @@
     <servlet-mapping>
         <servlet-name>springServlet</servlet-name>
         <url-pattern>/</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>default</servlet-name>
-        <url-pattern>*.css</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>default</servlet-name>
-        <url-pattern>*.js</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>default</servlet-name>
@@ -92,7 +79,8 @@
         <url-pattern>*.html</url-pattern>
     </servlet-mapping>
     <session-config>
-        <session-timeout>60</session-timeout>
+        <session-timeout>86400</session-timeout>
+        <tracking-mode>COOKIE</tracking-mode>
     </session-config>
     <welcome-file-list>
         <welcome-file>index</welcome-file>

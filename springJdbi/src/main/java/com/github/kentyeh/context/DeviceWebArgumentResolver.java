@@ -1,9 +1,8 @@
 package com.github.kentyeh.context;
 
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.MethodParameter;
 import org.springframework.mobile.device.Device;
@@ -24,19 +23,31 @@ import org.springframework.web.context.request.NativeWebRequest;
  *
  * @author Kent Yeh
  */
-@Log4j2
 public class DeviceWebArgumentResolver implements WebArgumentResolver, InitializingBean {
 
-    static final MobileDevice mobileDevice = new MobileDevice();
-    @Getter
-    @Setter
+    private static final Logger logger = LogManager.getLogger(DeviceWebArgumentResolver.class);
+    private static final MobileDevice mobileDevice = new MobileDevice();
     private String requestName = "device";
-    @Getter
-    @Setter
     private String mobileValue = "mobile";
 
     public DeviceWebArgumentResolver() {
 
+    }
+
+    public String getRequestName() {
+        return requestName;
+    }
+
+    public void setRequestName(String requestName) {
+        this.requestName = requestName;
+    }
+
+    public String getMobileValue() {
+        return mobileValue;
+    }
+
+    public void setMobileValue(String mobileValue) {
+        this.mobileValue = mobileValue;
     }
 
     @Override
@@ -52,7 +63,7 @@ public class DeviceWebArgumentResolver implements WebArgumentResolver, Initializ
     @Override
     public Object resolveArgument(MethodParameter param, NativeWebRequest request) throws Exception {
         for (Map.Entry entry : request.getParameterMap().entrySet()) {
-            log.info("parameter[\"{}\"]={}", entry.getKey(), entry.getValue());
+            logger.info("parameter[\"{}\"]={}", entry.getKey(), entry.getValue());
         }
         if (Device.class.isAssignableFrom(param.getParameterType())) {
             if (mobileValue.equals(request.getParameter(requestName))) {

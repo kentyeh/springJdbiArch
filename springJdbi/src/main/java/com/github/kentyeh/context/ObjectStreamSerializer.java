@@ -3,35 +3,40 @@ package com.github.kentyeh.context;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 
-public class ObjectStreamSerializer implements StreamSerializer<Object> {
+/**
+ * Hazelcast custom serialization
+ *
+ * @author kent
+ * @param <T>
+ */
+public class ObjectStreamSerializer<T> implements StreamSerializer<T> {
 
     @Override
     public int getTypeId() {
-        return 2;
+        return 10;
     }
 
     @Override
-    public void write(ObjectDataOutput objectDataOutput, Object object)
+    public void write(ObjectDataOutput objectDataOutput, T object)
             throws IOException {
-        ObjectOutputStream out = new ObjectOutputStream((OutputStream) objectDataOutput);
-        out.writeObject(object);
-        out.flush();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (XMLEncoder encoder = new XMLEncoder(bos)) {
+            encoder.writeObject(object);
+        }
+        objectDataOutput.write(bos.toByteArray());
     }
 
     @Override
-    public Object read(ObjectDataInput objectDataInput) throws IOException {
-        ObjectInputStream in = new ObjectInputStream((InputStream) objectDataInput);
-        try {
-            return in.readObject();
-        } catch (ClassNotFoundException e) {
-            throw new IOException(e);
-        }
+    public T read(ObjectDataInput objectDataInput) throws IOException {
+        InputStream inputStream = (InputStream) objectDataInput;
+        XMLDecoder decoder = new XMLDecoder(inputStream);
+        return (T) decoder.readObject();
     }
 
     @Override

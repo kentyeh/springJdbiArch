@@ -1,9 +1,12 @@
 package com.github.kentyeh.model;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,50 +14,72 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  *
  * @author Kent Yeh
  */
 @Entity
-@NoArgsConstructor
-@EqualsAndHashCode(of = "account", callSuper = false)
 public class Member implements Serializable {
 
     private static final long serialVersionUID = 395368712192880218L;
 
     @NotNull(message = "{com.github.kentyeh.model.Member.account.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.account.notEmpty.message}")
-    @Getter
-    @Setter
     @Column
     @Id
     private String account;
+
     @NotNull(message = "{com.github.kentyeh.model.Member.passwd.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.passwd.notEmpty.message}")
-    @Getter
-    @Setter
     @Column(name = "passwd")
     private String password;
+
     @NotNull(message = "{com.github.kentyeh.model.Member.name.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.name.notEmpty.message}")
-    @Getter
-    @Setter
     @Column
     private String name;
+
     @Column
     private String enabled = "Y";
+
     @Column
     @Temporal(TemporalType.DATE)
     private Date birthday;
+
     private List<Authority> authorities;
+
+    public Member() {
+    }
 
     public Member(String account, String name) {
         this.account = account;
+        this.name = name;
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -103,7 +128,42 @@ public class Member implements Serializable {
     }
 
     @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.account);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Member other = (Member) obj;
+        return Objects.equals(this.account, other.account);
+    }
+
+    @Override
     public String toString() {
-        return String.format("%s[%s]", name, account);
+        return String.format("%s[%s]:%s", name, account, password);
+    }
+
+    public static class MemberMapper implements RowMapper<Member> {
+
+        @Override
+        public Member map(ResultSet rs, StatementContext ctx) throws SQLException {
+            Member res = new Member(rs.getString("account"), rs.getString("name"));
+            res.setPassword(rs.getString("passwd"));
+            res.setEnabled(rs.getString("enabled"));
+            java.sql.Date dv = rs.getDate("birthday");
+            if (!rs.wasNull()) {
+                res.setBirthday(new Date(dv.getTime()));
+            }
+            return res;
+        }
+
     }
 }

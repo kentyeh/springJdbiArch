@@ -3,39 +3,40 @@ package com.github.kentyeh.context;
 import com.github.kentyeh.manager.MemberManager;
 import com.github.kentyeh.model.Authority;
 import com.github.kentyeh.model.Member;
-import lombok.extern.log4j.Log4j2;
+import java.io.StringReader;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonReader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.openid.OpenIDAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 /**
- * Change
- * {@link UsernamePasswordAuthenticationToken UsernamePasswordAuthenticationToken}
- * to {@link OpenIDAuthenticationToken OpenIDAuthenticationToken} if intend to
- * use OpenId.
- * 如果要用OpenId，請將{@link UsernamePasswordAuthenticationToken UsernamePasswordAuthenticationToken}
- * 換成{@link OpenIDAuthenticationToken OpenIDAuthenticationToken}
  *
  * @author Kent Yeh
  */
 @Service("customUserService")
-@Log4j2
 public class CustomUserService implements UserDetailsService, AuthenticationUserDetailsService<UsernamePasswordAuthenticationToken> {
+
+    private static final Logger logger = LogManager.getLogger(CustomUserService.class);
+
+    @Autowired
+    @Qualifier("messageAccessor")
+    MessageSourceAccessor messageAccessor;
 
     @Autowired
     private MemberManager memberManager;
 
     /**
-     * {@link DaoAuthenticationProvider DaoAuthenticationProvider} load
-     * userDetails to compare user's password.<br>
-     * {@link DaoAuthenticationProvider DaoAuthenticationProvider}叫用本函式取得用戶資料以比對密碼
-     *
      * @param account
      * @return
      */
@@ -43,10 +44,27 @@ public class CustomUserService implements UserDetailsService, AuthenticationUser
     public UserDetails loadUserByUsername(String account) throws UsernameNotFoundException {
         //Find user data,找到用戶資料
         try {
-            Member member = memberManager.findByPrimaryKey(account);
+            String[] vals;
+            if (account.startsWith("[") && account.endsWith("]") && account.contains(",")) {
+                try (JsonReader jsonReader = Json.createReader(new StringReader(account))) {
+                    JsonArray jsonary = jsonReader.readArray();
+                    vals = new String[jsonary.size()];
+                    for (int i = 0; i < jsonary.size(); i++) {
+                        vals[i] = jsonary.getString(i);
+                    }
+                }
+            } else {
+                vals = account.split(",");
+            }
+            logger.debug("loadUserByUsername({})", account);
+            Member member = memberManager.findByPrimaryKey(vals[0]);
             //Decide user's roles,自行決定如何給角色
             if (member == null) {
-                throw new UsernameNotFoundException("");
+                throw new UsernameNotFoundException(messageAccessor.getMessage("com.github.kentyeh.context.CustomUserService.userNotEnabled"));
+            } else if (!"Y".equals(member.getEnabled())) {
+                throw new UsernameNotFoundException(messageAccessor.getMessage("com.github.kentyeh.context.CustomUserService.userNotEnabled"));
+            } else if (vals.length > 1 && !vals[1].equals(member.getPassword())) {//it could be load by rememberMe service
+                throw new UsernameNotFoundException(messageAccessor.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials"));
             }
             StringBuilder roles = null;
             for (Authority authority : member.getAuthorities()) {
@@ -56,6 +74,7 @@ public class CustomUserService implements UserDetailsService, AuthenticationUser
                     roles.append(",").append(authority.getAuthority());
                 }
             }
+            logger.debug("{}'s roles is {}", member.getAccount(), roles);
             if (roles == null) {
                 return new CustomUserInfo(member, "");
             } else {
@@ -63,17 +82,13 @@ public class CustomUserService implements UserDetailsService, AuthenticationUser
             }
         } catch (UsernameNotFoundException ex) {
             throw ex;
-        } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
+        } catch (NoSuchMessageException ex) {
+            logger.error(ex.getMessage(), ex);
             throw new UsernameNotFoundException(ex.getMessage(), ex);
         }
     }
 
     /**
-     * Not used by
-     * {@link DaoAuthenticationProvider DaoAuthenticationProvider}.<br>
-     * {@link DaoAuthenticationProvider DaoAuthenticationProvider}目前用不到這個函式.
-     * 3.1以後OpenId真正叫用這個函式
      *
      * @param token
      * @return

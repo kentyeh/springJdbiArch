@@ -1,9 +1,8 @@
 package com.github.kentyeh.context;
 
 import com.github.kentyeh.model.Member;
-import java.util.ArrayList;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import java.util.Collections;
+import java.util.Objects;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
@@ -12,17 +11,19 @@ import org.springframework.security.core.userdetails.User;
  *
  * @author Kent Yeh
  */
-@EqualsAndHashCode(of = "member", callSuper = false)
 public class CustomUserInfo extends User {
 
     private static final long serialVersionUID = -2209416924912982094L;
 
-    @Getter
     private final Member member;
+
+    public Member getMember() {
+        return member;
+    }
 
     public CustomUserInfo(Member member, String roles) {
         super(member.getAccount(), member.getPassword(), true, true, true, true, roles == null || roles.isEmpty()
-                ? new ArrayList<GrantedAuthority>(0) : AuthorityUtils.commaSeparatedStringToAuthorityList(roles));
+                ? Collections.<GrantedAuthority>emptyList() : AuthorityUtils.commaSeparatedStringToAuthorityList(roles));
         this.member = member;
     }
 
@@ -38,8 +39,28 @@ public class CustomUserInfo extends User {
 
     @Override
     public String getPassword() {
-        return member == null ? super.getPassword() : member.getPassword();
+        return "{noop}" + (member == null ? super.getPassword() : member.getPassword());
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 11 * hash + Objects.hashCode(this.member);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final CustomUserInfo other = (CustomUserInfo) obj;
+        return Objects.equals(this.member, other.member);
+    }
+
     @Override
     public String toString() {
         return member.toString();

@@ -4,11 +4,11 @@
         <!--browser:  firefox , googlechrome , iexplore-->
         <parameter name="contextPath" value="${context.path}"/>
         <parameter name="http.port" value="${test.http.port}"/> 	
+        <parameter name="captcha" value="${testCaptcha}"/> 	
         <classes>
-            <!--                   
-            -->              
+            <!--
+            -->
             <class name="com.github.kentyeh.controller.TestIntegration"/>
-            <class name="com.github.kentyeh.controller.TestIntegratedWithHunitUnitOnly"/>
         </classes>        
         <!--groups>
             <run>

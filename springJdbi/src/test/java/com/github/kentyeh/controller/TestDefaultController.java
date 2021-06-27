@@ -3,7 +3,8 @@ package com.github.kentyeh.controller;
 import com.github.kentyeh.manager.TestMemberManager;
 import com.github.kentyeh.model.Member;
 import java.util.Arrays;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -15,10 +16,10 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,9 +30,9 @@ import org.testng.annotations.Test;
  */
 @WebAppConfiguration
 @ContextConfiguration(classes = com.github.kentyeh.context.TestContext.class)
-@Log4j2
 public class TestDefaultController extends AbstractTestNGSpringContextTests {
 
+    private static final Logger logger = LogManager.getLogger(TestDefaultController.class);
     @Autowired
     WebApplicationContext wac;
     private MockMvc mockMvc;
@@ -40,7 +41,7 @@ public class TestDefaultController extends AbstractTestNGSpringContextTests {
 
     @BeforeClass
     public void setup() {
-        this.mockMvc = webAppContextSetup(this.wac).alwaysExpect(status().isOk()).build();
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
     @Test
@@ -50,29 +51,45 @@ public class TestDefaultController extends AbstractTestNGSpringContextTests {
 
     @Test
     public void testListuser() throws Exception {
-        mockMvc.perform(post("/admin/users").with(user("admin").roles("ADMIN"))).andDo(print()).andExpect(jsonPath("$.total", is(equalTo(memberManager.countUsers()))));
-    }
-    
-    @Test
-    public void testListAdminOrUser() throws Exception {
-        mockMvc.perform(post("/admin/adminOrUsers").with(user("admin").roles("ADMIN"))).andDo(print()).andExpect(jsonPath("$.total", is(equalTo(memberManager.countAdminOrUser(Arrays.asList(new String[]{"ROLE_ADMIN","ROLE_USER"}))))));
+        mockMvc.perform(post("/admin/users").with(user("admin").roles("ADMIN"))).andDo(print())
+                .andExpect(jsonPath("$.total", is(equalTo(memberManager.countUsers()))));
     }
 
+    @Test
+    public void testListAdminOrUser() throws Exception {
+        mockMvc.perform(post("/admin/adminOrUsers").with(user("admin").roles("ADMIN"))).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total", is(equalTo(memberManager.countAdminOrUser(Arrays.asList(new String[]{"ROLE_ADMIN", "ROLE_USER"}))))));
+    }
 
     @Test
     public void testMyinfo() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post("/user/myinfo").principal(new TestingAuthenticationToken("admin", null))).andReturn();
+        MvcResult mvcResult = mockMvc.perform(post("/user/myinfo").principal(new TestingAuthenticationToken("admin", "admin", "ROLE_ADMIN"))).andReturn();
         Member member = (Member) mvcResult.getRequest().getAttribute("member");
-        log.debug("My account is \"{}\" and my name is {}", member.getAccount(), member.getName());
-        assertThat("Test UserInfo error ", member.getAccount(), is(equalTo("admin")));
+        if (member != null) {
+            assertThat("Test UserInfo error ", member.getAccount(), is(equalTo("admin")));
+        } else {
+            throw new RuntimeException("member not found!");
+        }
     }
 
     @Test
     public void testUserInfo() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post("/admin/user/{account}", "admin").with(user("admin").roles("ADMIN"))).andReturn();
         Member member = (Member) mvcResult.getRequest().getAttribute("member");
-        log.debug("account \"{}\" name is {}", member.getAccount(), member.getName());
+        logger.debug("account \"{}\" name is {}", member.getAccount(), member.getName());
         assertThat("Test UserInfo error ", "admin", is(equalTo(member.getAccount())));
     }
 
+    @Test
+    public void testUserLike() throws Exception {
+        mockMvc.perform(post("/user/like")).andDo(print())
+                .andExpect(jsonPath("$.count", is(equalTo(1))));
+    }
+    
+    @Test
+    public void testUserDislike() throws Exception {
+        mockMvc.perform(post("/user/dislike")).andDo(print())
+                .andExpect(jsonPath("$.count", is(equalTo(1))));
+    }
 }
