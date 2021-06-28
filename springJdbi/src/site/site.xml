@@ -42,8 +42,6 @@
 	    <item name="黃瓜報表(Cucumber Report)" href="cucumber-reports/cucumber-html-reports/overview-features.html" target="_blank"/>
             <item name="測試報表(Tess Report)" href="../surefire-reports/index.html" target="_blank"/>
             <item name="整合報表(Integration Report)" href="../failsafe-reports/index.html" target="_blank"/>
-            <item name="測試涵蓋報表(Jacoco Tess Report)" href="jacoco-ut/index.html" target="_blank"/>
-            <item name="整合涵蓋報表(Jacoco Integration Report)" href="jacoco-it/index.html" target="_blank"/>
             <item name="說明(README)" href="readme.html"/>
             <item name="常見問題(FAQ)" href="faq.html"/>
         </menu>
