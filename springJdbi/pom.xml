@@ -23,7 +23,7 @@
         <hibernate.version>5.2.0.Final</hibernate.version>
         <jdbi.version>3.20.1</jdbi.version>
         <cucumber.version>6.10.4</cucumber.version>
-        <h2.version>1.4.200</h2.version>
+        <h2.version>2.0.206</h2.version>
         <atomikos.version>5.0.8</atomikos.version>
         <maven.test.skip>false</maven.test.skip>
         <context.path>${project.artifactId}</context.path>
