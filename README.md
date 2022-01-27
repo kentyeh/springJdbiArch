@@ -9,7 +9,7 @@ Sample arthetype form [Spring](http://projects.spring.io/spring-framework/),[spr
 generate sample project:
 ```
 mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
--DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=3.0.0
+-DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=3.0.1
 ```
 #### After generation ####
 * Test Program
