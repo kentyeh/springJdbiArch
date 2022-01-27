@@ -22,11 +22,14 @@ mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
   ```
   mvn integration-test 
   ```
-* verify and generate document
+* Test and generate document
 
   ```
-  mvn verify site
+  mvn integration-test  site
   ```
+  
+  Final site report generated at target/site/index.html.
+  
 * running program
 
   ```

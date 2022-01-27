@@ -5,6 +5,7 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,8 +35,8 @@ public class ObjectStreamSerializer<T> implements StreamSerializer<T> {
 
     @Override
     public T read(ObjectDataInput objectDataInput) throws IOException {
-        InputStream inputStream = (InputStream) objectDataInput;
-        XMLDecoder decoder = new XMLDecoder(inputStream);
+        ByteArrayInputStream bais = new ByteArrayInputStream(objectDataInput.readByteArray());
+        XMLDecoder decoder = new XMLDecoder(bais);
         return (T) decoder.readObject();
     }
 

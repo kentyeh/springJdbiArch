@@ -4,7 +4,7 @@
 
     <groupId>com.github.kentyeh</groupId>
     <artifactId>springJdbi</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <packaging>war</packaging>
 
     <name>springJdbi</name>
@@ -17,23 +17,23 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.optimize>true</maven.compiler.optimize>
-        <spring.version>5.3.8</spring.version>
-        <spring.security.version>5.5.1</spring.security.version>
-        <hazecast.version>4.2</hazecast.version>
+        <spring.version>5.3.15</spring.version>
+        <spring.security.version>5.6.1</spring.security.version>
+        <hazecast.version>5.0.2</hazecast.version>
         <hibernate.version>5.2.0.Final</hibernate.version>
-        <jdbi.version>3.20.1</jdbi.version>
-        <cucumber.version>6.10.4</cucumber.version>
+        <jdbi.version>3.27.1</jdbi.version>
+        <cucumber.version>7.2.3</cucumber.version>
         <h2.version>1.4.200</h2.version>
         <atomikos.version>5.0.8</atomikos.version>
         <maven.test.skip>false</maven.test.skip>
         <context.path>${project.artifactId}</context.path>
-        <log4j.version>2.14.1</log4j.version> 
+        <log4j.version>2.17.1</log4j.version> 
         <disruptor.version>3.4.4</disruptor.version>
         <surefire.version>2.22.2</surefire.version>
         <findbugs.version>3.0.5</findbugs.version>
         <pmd.version>3.14.0</pmd.version>
         <jacoco.version>0.8.7</jacoco.version>
-        <jetty.version>9.4.42.v20210604</jetty.version>
+        <jetty.version>9.4.44.v20210927</jetty.version>
         <alpn.version>8.1.13.v20181017</alpn.version>
         <glassfish.json.version>1.1.4</glassfish.json.version>
         <aspectj.version>1.9.7</aspectj.version>
@@ -126,7 +126,7 @@
         <dependency>
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-hazelcast</artifactId>
-            <version>2.5.1</version>
+            <version>2.6.1</version>
         </dependency>
         <dependency>
             <groupId>javax.cache</groupId>
@@ -192,7 +192,7 @@
         <dependency>
             <groupId>org.datanucleus</groupId>
             <artifactId>javax.persistence</artifactId>
-            <version>2.2.3</version>
+            <version>2.2.4</version>
         </dependency>
         <!--hibernate-validator 5.x require el-api-->
         <dependency>
@@ -320,7 +320,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>7.4.0</version>
+            <version>7.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -362,7 +362,7 @@
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>2.50.0</version>
+            <version>2.57.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -430,7 +430,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.9.0</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -463,7 +463,7 @@
                     <dependency>
                         <groupId>org.hibernate</groupId>
                         <artifactId>hibernate-jpamodelgen</artifactId>
-                        <version>5.5.3.Final</version>
+                        <version>5.6.5.Final</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -512,7 +512,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.1</version>
+                <version>3.3.2</version>
                 <configuration>
                     <webXml>${basedir}/src/test/resources/web.xml</webXml>
                 </configuration>
@@ -580,7 +580,7 @@
             <plugin>
                 <groupId>net.masterthought</groupId>
                 <artifactId>maven-cucumber-reporting</artifactId>
-                <version>5.5.0</version>
+                <version>5.6.2</version>
                 <executions>
                     <execution>
                         <id>execution</id>
@@ -844,12 +844,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.9.1</version>
+                <version>3.10.0</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.maven.doxia</groupId>
                         <artifactId>doxia-module-markdown</artifactId>
-                        <version>1.9.1</version>
+                        <version>1.11.1</version>
                     </dependency>
                 </dependencies>
                 <configuration>
@@ -891,7 +891,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M3</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>enforce-bytecode-version</id>
@@ -915,7 +915,7 @@
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.3</version>
+                        <version>1.5.1</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -934,7 +934,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.3.1</version>
                 <configuration>
                     <aggregate>true</aggregate>
                     <minmemory>128m</minmemory>
@@ -981,7 +981,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.14.0</version>
+                <version>3.15.0</version>
                 <configuration>
                     <failOnViolation>false</failOnViolation>
                     <linkXref>true</linkXref>
