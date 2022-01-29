@@ -33,7 +33,7 @@ public interface Dao extends SqlObject, AutoCloseable {
     List<Member> findAllUsers();
 
     @SqlQuery("SELECT * FROM appmember WHERE EXISTS(SELECT 1 FROM authorities"
-            + " WHERE authorities.account=appmember.account AND ARRAY_CONTAINS(ARRAY[ <auths> ],authority) )"
+            + " WHERE authorities.account=appmember.account AND authority in ( <auths> ))"
             + " ORDER BY account")
     @UseStringTemplateEngine
     @RegisterRowMapper(Member.MemberMapper.class)

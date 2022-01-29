@@ -14,9 +14,7 @@ public interface TestDao extends Dao {
     int countUsers();
 
     @SqlQuery("SELECT count(8) FROM appmember WHERE EXISTS(SELECT 1 FROM authorities"
-            + " WHERE authorities.account=appmember.account AND ARRAY_CONTAINS(ARRAY[ <auths> ],authority))")
+            + " WHERE authorities.account=appmember.account AND authority in ( <auths>))")
     int countAdminOrUser(@BindList("auths") List<String> auths);
 
-    @SqlQuery("SELECT member FROM hzmembers")
-    List<String> queryHzMembers();
 }
