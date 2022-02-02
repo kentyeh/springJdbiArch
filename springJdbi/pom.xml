@@ -27,6 +27,7 @@
         <atomikos.version>5.0.8</atomikos.version>
         <maven.test.skip>false</maven.test.skip>
         <context.path>${project.artifactId}</context.path>
+        <jedisMock.version>1.0.0</jedisMock.version>
         <log4j.version>2.17.1</log4j.version> 
         <disruptor.version>3.4.4</disruptor.version>
         <surefire.version>2.22.2</surefire.version>
@@ -119,14 +120,31 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-spring</artifactId>
-            <version>${hazecast.version}</version>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+            <version>2.6.1</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.session</groupId>
-            <artifactId>spring-session-hazelcast</artifactId>
-            <version>2.6.1</version>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>6.1.6.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+            <version>2.11.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <version>4.1.73.Final</version>
+            <classifier>linux-x86_64</classifier>
+        </dependency>
+        <dependency>
+            <groupId>com.github.fppt</groupId>
+            <artifactId>jedis-mock</artifactId>
+            <version>${jedisMock.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>javax.cache</groupId>
@@ -304,6 +322,11 @@
             <artifactId>simplecaptcha</artifactId>
             <version>1.2.2</version>
         </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+        </dependency>
         <!--Test library dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -394,7 +417,7 @@
     </dependencies>
     <prerequisites>
         <maven>3.0.5</maven>
-    </prerequisites> 
+    </prerequisites>
     <build>
         <finalName>${project.artifactId}</finalName>
         <resources>
@@ -469,56 +492,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <filesets>
-                        <fileset><!--Clean temporarily Jetty's web.xml-->
-                            <directory>${basedir}/src/test/resources</directory>
-                            <includes>
-                                <include>web.xml</include>
-                            </includes>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <id>copy-resource-one</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/src/test/resources/</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/src/main/webapp/WEB-INF/</directory>
-                                    <filtering>true</filtering>
-                                    <includes>
-                                        <include>web.xml</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>
-                <configuration>
-                    <webXml>${basedir}/src/test/resources/web.xml</webXml>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${surefire.version}</version>
                 <executions>
@@ -545,6 +518,10 @@
                             <name>org.jboss.logging.provider</name>
                             <value>log4j2</value>
                         </property>
+                        <property>
+                            <name>spring.profiles.active</name>
+                            <value>dev</value>
+                        </property>
                     </systemProperties>
                     <suiteXmlFiles>
                         <suiteXmlFile>${project.build.testOutputDirectory}/testng-integration.xml</suiteXmlFile>
@@ -570,6 +547,10 @@
                         <property>
                             <name>org.jboss.logging.provider</name>
                             <value>log4j2</value>
+                        </property>
+                        <property>
+                            <name>spring.profiles.active</name>
+                            <value>dev</value>
                         </property>
                     </systemProperties>
                     <suiteXmlFiles>
@@ -749,6 +730,10 @@
                                     <name>catalina.home</name>
                                     <value>${project.build.directory}</value>
                                 </systemProperty>
+                                <systemProperty>
+                                    <name>spring.profiles.active</name>
+                                    <value>dev</value>
+                                </systemProperty>
                             </systemProperties>
                         </configuration>   
                     </execution> 
@@ -796,6 +781,11 @@
                         <artifactId>transactions-api</artifactId>
                         <version>${atomikos.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>com.github.fppt</groupId>
+                        <artifactId>jedis-mock</artifactId>
+                        <version>${jedisMock.version}</version>
+                    </dependency>
                 </dependencies>
                 <configuration>
                     <systemProperties>
@@ -812,6 +802,10 @@
                             <value>log4j2</value>
                         </systemProperty>
                         <systemProperty>
+                            <name>spring.profiles.active</name>
+                            <value>dev</value>
+                        </systemProperty>
+                        <systemProperty>
                             <name>ignoreXxeProtectionFailures</name>
                             <value>false</value>
                         </systemProperty>
@@ -824,7 +818,6 @@
                     <webApp>
                         <contextPath>/${context.path}</contextPath>
                         <jettyEnvXml>${project.build.testOutputDirectory}/jetty-env.xml</jettyEnvXml>
-                        <descriptor>${project.build.testOutputDirectory}/web.xml</descriptor>
                     </webApp>
                     <httpConnector>
                         <port>${test.http.port}</port>
@@ -854,38 +847,6 @@
                 </dependencies>
                 <configuration>
                     <locales>zh_TW</locales>
-                    <reportPlugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-project-info-reports-plugin</artifactId>
-                            <version>3.1.2</version>
-                            <configuration>
-                                <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                            </configuration>
-                            <reportSets>
-                                <reportSet>
-                                    <reports>
-                                        <report>index</report>
-                                        <report>plugin-management</report><!--專案外掛程式管理 (Project Plugin Management)-->
-                                        <!--report>distribution-management</report>  發佈管理-->
-                                        <report>scm</report><!--原始碼貯藏庫 (Source Repository)-->
-                                        <!--report>mailing-list</report>  專案郵件列表 (Project Mailing Lists)-->
-                                        <!--report>issue-tracking</report> 問題追蹤 (Issue Tracking)-->
-                                        <!--report>cim</report>  持續整合 (Continuous Integration)-->
-                                        <report>plugins</report><!--專案建構外掛程式 (Project Build Plugins)-->
-                                        <report>license</report><!--專案授權許可 (Project License)-->
-                                        <report>project-team</report><!--團隊 (The Team)-->
-                                        <report>summary</report><!--專案摘要 (Project Summary)-->
-                                        <report>dependencies</report> <!--專案依賴 (Project Dependencies)-->
-                                        <report>dependency-management</report>
-                                        <report>dependency-convergence</report><!--**-->
-                                        <report>dependency-info</report><!--**-->
-                                        <report>modules</report>
-                                    </reports>
-                                </reportSet>
-                            </reportSets>
-                        </plugin>
-                    </reportPlugins>
                 </configuration>
             </plugin>
             <plugin>
@@ -923,6 +884,15 @@
     </build>
     <reporting>
         <plugins>
+            
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-project-info-reports-plugin</artifactId>
+                            <version>3.1.2</version>
+                            <configuration>
+                                <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                            </configuration>
+                        </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
@@ -948,10 +918,13 @@
                     <links>
                         <link>https://docs.oracle.com/javase/8/docs/api/</link>
                         <link>https://docs.oracle.com/javaee/7/api/</link>
-                        <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
+                        <link>https://docs.spring.io/spring-framework/docs/current/javadoc-api/</link>
                         <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
                         <link>https://docs.spring.io/spring-mobile/docs/current/api/</link>
+                        <link>https://docs.spring.io/spring-session/docs/current/api/</link>
                         <link>https://docs.jboss.org/hibernate/stable/core/javadocs/</link>
+                         <!--<link>https://jdbi.org/apidocs/index.html</link>-->
+                        <link>https://lettuce.io/core/release/api/index.html</link>
                         <link>https://logging.apache.org/log4j/2.x/log4j-api/apidocs/</link>
                         <link>https://logging.apache.org/log4j/2.x/log4j-core/apidocs/</link>
                         <!--Jdbi3 support element-list and no more package-list-->

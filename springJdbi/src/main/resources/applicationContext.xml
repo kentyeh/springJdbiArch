@@ -50,11 +50,6 @@
     <!--Enabled @Transactional-->
     <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
     
-    <!--Spring Cache start,comment it if you don't need 若是不需用要Spring Cache功能，把下面這部分移除-->
-    <bean id="springCacheManager" class="com.hazelcast.spring.cache.HazelcastCacheManager">
-        <constructor-arg ref="hazelcastInstance"/>
-        <property name="cacheOptions" value="defaultReadTimeout=86400"/>
-    </bean>
     <cache:annotation-driven cache-manager="springCacheManager"/>
     <!--Spring Cache end-->
 </beans>

@@ -2,6 +2,10 @@
 <!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
 
 <Configure class="org.eclipse.jetty.webapp.WebAppContext">
+    <New class="com.github.fppt.jedismock.RedisServer">
+        <Arg type="int">6379</Arg>
+        <Call name="start"/>
+    </New>
     <Call class="org.h2.tools.RunScript" name="execute">
         <Arg>jdbc:h2:${project.build.testOutputDirectory}/${project.artifactId};USER=sa;PASSWORD=${project.artifactId};DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE;MODE=PostgreSQL</Arg>
         <Arg>sa</Arg>

@@ -9,9 +9,6 @@ import cn.apiclub.captcha.text.renderer.DefaultWordRenderer;
 import com.github.kentyeh.context.CustomUserInfo;
 import com.github.kentyeh.manager.MemberManager;
 import com.github.kentyeh.model.Member;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.cp.IAtomicLong;
-import com.hazelcast.map.IMap;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -33,7 +30,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -64,6 +64,18 @@ public class DefaultController {
     private static final Logger logger = LogManager.getLogger(DefaultController.class);
     private static final String LIKE = "userLike";
     private static final String DISLIKE = "userDislike";
+    private org.springframework.context.ApplicationContext context;
+    private RedisConnectionFactory connectionFactory;
+
+    @Autowired
+    public void setContext(ApplicationContext context) {
+        this.context = context;
+    }
+
+    @Autowired
+    public void setConnectionFactory(RedisConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
+    }
 
     @Autowired
     @Qualifier("messageAccessor")
@@ -74,17 +86,6 @@ public class DefaultController {
 
     @Autowired
     private MemberManager memberManager;
-
-    /**
-     * Show how to inject hazelcast instance.<br/>
-     * 示範取得 hazelcast 實例.
-     */
-    private HazelcastInstance hazelcastInstance;
-
-    @Autowired
-    public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
-        this.hazelcastInstance = hazelcastInstance;
-    }
 
     @RequestMapping("/")
     public String root(Device device, Model model) {
@@ -313,8 +314,9 @@ public class DefaultController {
         } else {
             request.setAttribute("member", memberManager.findByPrimaryKey(getPrincipalId(principal)));
         }
-        model.addAttribute("like", hazelcastInstance.getCPSubsystem().getAtomicLong(LIKE).get());
-        model.addAttribute("dislike", hazelcastInstance.getCPSubsystem().getAtomicLong(DISLIKE).get());
+
+        model.addAttribute("like", context.getBean(RedisAtomicLong.class, LIKE, context.getBean(RedisConnectionFactory.class)));
+        model.addAttribute("dislike", context.getBean(RedisAtomicLong.class, DISLIKE, context.getBean(RedisConnectionFactory.class)));
         return "index";
     }
 
@@ -322,7 +324,7 @@ public class DefaultController {
             headers = "Accept=*/*", produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String userLike() throws Exception {
-        IAtomicLong likeCount = hazelcastInstance.getCPSubsystem().getAtomicLong(LIKE);
+        RedisAtomicLong likeCount = context.getBean(RedisAtomicLong.class, LIKE, connectionFactory);
         long likes = likeCount.addAndGet(1);
         return Json.createObjectBuilder().add("count", likes).build().toString();
     }
@@ -331,7 +333,7 @@ public class DefaultController {
             headers = "Accept=*/*", produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String userDislike() throws Exception {
-        IAtomicLong dislikeCount = hazelcastInstance.getCPSubsystem().getAtomicLong(DISLIKE);
+        RedisAtomicLong dislikeCount = context.getBean(RedisAtomicLong.class, DISLIKE, connectionFactory);
         long dislikes = dislikeCount.addAndGet(1);
         return Json.createObjectBuilder().add("count", dislikes).build().toString();
     }

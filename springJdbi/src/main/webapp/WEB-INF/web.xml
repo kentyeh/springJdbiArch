@@ -38,16 +38,11 @@
     <filter-mapping>
         <filter-name>springSecurityFilterChain</filter-name>
         <servlet-name>springServlet</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>ERROR</dispatcher>
     </filter-mapping>
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-    </listener>
-    <context-param>
-        <param-name>hazelcastMembers</param-name>
-        <param-value>${hazelcastMembers}</param-value>
-    </context-param>
-    <listener>
-        <listener-class>com.github.kentyeh.context.SpringSessionListener</listener-class>
     </listener>
     <servlet>
         <servlet-name>springServlet</servlet-name>

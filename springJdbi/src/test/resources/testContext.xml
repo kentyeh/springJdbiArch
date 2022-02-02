@@ -27,6 +27,14 @@
         <entry key="i18n.localeParam" value="locale" />
         <entry key="i18n.defaultLocale" value="zh_TW" />
     </util:map>
+
+ 
+    <!--Mock Reids Server-->
+    <util:constant static-field="org.springframework.session.data.redis.config.ConfigureRedisAction.NO_OP"/> 
+    <bean id="devRedisServer" class="com.github.fppt.jedismock.RedisServer"  init-method="start"  destroy-method="stop"  
+          factory-method="newRedisServer" scope="singleton">
+        <constructor-arg value="6379"/>
+    </bean>
     
     <!--DataSource setting -->
     <bean id="dataSource" class="org.h2.jdbcx.JdbcConnectionPool" destroy-method="dispose">
@@ -81,10 +89,6 @@
     <!--for file upload test,檔案上傳測試用-->
     <!--bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/-->
     
-    <bean id="springCacheManager" class="com.hazelcast.spring.cache.HazelcastCacheManager">
-        <constructor-arg ref="hazelcastInstance"/>
-        <property name="cacheOptions" value="defaultReadTimeout=0"/>
-    </bean>
     <cache:annotation-driven cache-manager="springCacheManager"/>
     
 </beans>
