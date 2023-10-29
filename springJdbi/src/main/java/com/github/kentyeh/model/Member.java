@@ -1,5 +1,7 @@
 package com.github.kentyeh.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,13 +9,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -21,32 +16,22 @@ import org.jdbi.v3.core.statement.StatementContext;
  *
  * @author Kent Yeh
  */
-@Entity
-public class Member implements Serializable {
-
-    private static final long serialVersionUID = 395368712192880218L;
+public class Member{
 
     @NotNull(message = "{com.github.kentyeh.model.Member.account.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.account.notEmpty.message}")
-    @Column
-    @Id
     private String account;
 
     @NotNull(message = "{com.github.kentyeh.model.Member.passwd.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.passwd.notEmpty.message}")
-    @Column(name = "passwd")
     private String password;
 
     @NotNull(message = "{com.github.kentyeh.model.Member.name.notNull.message}")
     @Size(min = 1, message = "{com.github.kentyeh.model.Member.name.notEmpty.message}")
-    @Column
     private String name;
 
-    @Column
     private String enabled = "Y";
 
-    @Column
-    @Temporal(TemporalType.DATE)
     private Date birthday;
 
     private List<Authority> authorities;
@@ -91,6 +76,10 @@ public class Member implements Serializable {
         this.enabled = enabled;
     }
 
+    public String getFormattedBirthday() {
+        return birthday == null ? "" : String.format("%1$tY/%1$tm/%1$td", birthday);
+    }
+
     public Date getBirthday() {
         return birthday == null ? null : new Date(birthday.getTime());
     }
@@ -127,6 +116,18 @@ public class Member implements Serializable {
         }
     }
 
+    public String getRoles() {
+        if (authorities == null || authorities.isEmpty()) {
+            return "";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (Authority authority : getAuthorities()) {
+                sb.append(sb.isEmpty() ? "" : ",").append(authority.getAuthority());
+            }
+            return sb.toString();
+        }
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -158,10 +159,7 @@ public class Member implements Serializable {
             Member res = new Member(rs.getString("account"), rs.getString("name"));
             res.setPassword(rs.getString("passwd"));
             res.setEnabled(rs.getString("enabled"));
-            java.sql.Date dv = rs.getDate("birthday");
-            if (!rs.wasNull()) {
-                res.setBirthday(new Date(dv.getTime()));
-            }
+            res.setBirthday(rs.getDate("birthday"));
             return res;
         }
 

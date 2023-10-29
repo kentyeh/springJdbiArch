@@ -1,16 +1,16 @@
 package com.github.kentyeh.cucumber;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.kentyeh.manager.TestMemberManager;
 import com.github.kentyeh.model.Member;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
+import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import org.springframework.web.context.WebApplicationContext;
@@ -34,11 +34,27 @@ import org.springframework.web.context.WebApplicationContext;
 public class DemoFeatureTwStepDef {
 
     private static final Logger logger = LogManager.getLogger(DemoFeatureTwStepDef.class);
-    @Autowired
+
     protected WebApplicationContext wac;
-    @Autowired
+    private ObjectMapper objectMapper;
+
     private TestMemberManager memberManager;
     private MockMvc mockMvc;
+
+    @Autowired
+    public void setWac(WebApplicationContext wac) {
+        this.wac = wac;
+    }
+
+    @Autowired
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
+    @Autowired
+    public void setMemberManager(TestMemberManager memberManager) {
+        this.memberManager = memberManager;
+    }
 
     @Before
     public void setup() {
@@ -57,7 +73,11 @@ public class DemoFeatureTwStepDef {
 
     @Then("^顯示人員數應與所有人員數相等$")
     public void testUsersInfo() throws Exception {
-        mockMvc.perform(post("/admin/users").with(user("admin").roles("ADMIN"))).andDo(print()).andExpect(jsonPath("$.total", is(equalTo(memberManager.countUsers()))));
+        MvcResult mvcResult = mockMvc.perform(post("/admin/users")
+                .with(user("admin").roles("ADMIN")))
+                .andDo(print()).andReturn();
+        Member[] members = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Member[].class);
+        Assertions.assertThat(members.length).isEqualTo(memberManager.countUsers());
     }
 
     @Given("^用戶\"([^\"]*)\"已完成登錄$")
@@ -74,7 +94,7 @@ public class DemoFeatureTwStepDef {
     public void viewMyIno(String user) throws Throwable {
         MvcResult mvcResult = mockMvc.perform(post("/user/myinfo").principal(new TestingAuthenticationToken(user, null))).andDo(print()).andReturn();
         Member member = (Member) mvcResult.getRequest().getAttribute("member");
-        assertThat("顯示個資失敗", member.getAccount(), is(equalTo(user)));
+        Assertions.assertThat(member.getAccount()).isEqualTo(user);
     }
 
 }

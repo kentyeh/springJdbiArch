@@ -6,8 +6,14 @@
              xmlns:p="http://www.springframework.org/schema/p"
              xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
             http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+<!--    <debug/>-->
     <!--chnage enabled to activate funtionality,如需開放相關功能，將值設為enabled-->
-    <global-method-security pre-post-annotations="disabled" secured-annotations="disabled" jsr250-annotations="disabled"/>
+    <global-method-security pre-post-annotations="disabled" secured-annotations="disabled" jsr250-annotations="disabled">
+        <expression-handler ref="webexpressionHandler"/>
+    </global-method-security>
+    <beans:bean id="webexpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" >
+        <beans:description>jakarta el required</beans:description>
+    </beans:bean>
     <!--Custom authentication. 自訂用戶驗證-->
     <beans:bean id="rememberMeServices" class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
         <beans:constructor-arg value="${artifactId}" type="java.lang.String"/> 
@@ -26,12 +32,12 @@
         <beans:property name="defaultTargetUrl" value="/user/myinfo"/>
         <beans:property name="targetUrlParameter" value="tup"/>
     </beans:bean>
-    <beans:bean id="failureHandler" class="com.github.kentyeh.context.LoginRequestAuthenticationFailureHandler">
+    <beans:bean id="failureHandler" class="com.github.kentyeh.context.CustomAuthFailureHandler">
         <beans:property name="defaultFailureUrl" value="/login?authfailed=true"/>
     </beans:bean>
                 
     <beans:bean id="authEntryPoint" class="com.github.kentyeh.context.AjaxAwareLoginUrlAuthenticationEntryPoint" scope="singleton" 
-                c:loginFormUrl="/login" p:forceHttps="true"/>
+                c:loginFormUrl="/login" p:forceHttps="false"/>
     <!--Disable static path check to save time. 不過濾特定路徑以節省時間-->
     <http pattern="/images" security="none"/>
     <http pattern="/css" security="none"/>
@@ -40,17 +46,17 @@
     <http pattern="/static/**" security="none"/>
     <http auto-config="false" use-expressions="true" disable-url-rewriting="true"  entry-point-ref="authEntryPoint">
         <intercept-url pattern="/index" access="permitAll" requires-channel="any"/>
-        <intercept-url pattern="/login" access="permitAll" requires-channel="https"/>
-        <intercept-url pattern="/j_spring_security_check" method="POST" access="permitAll" requires-channel="https"/>
-        <intercept-url pattern="/captcha" access="permitAll" requires-channel="https"/>
+        <intercept-url pattern="/login" access="permitAll" requires-channel="any"/>
+        <intercept-url pattern="/j_spring_security_check" method="POST" access="permitAll" requires-channel="any"/>
+        <intercept-url pattern="/captcha" access="permitAll" requires-channel="any"/>
         <!--important: Without logout pattern setting result in http accepted only,and redirection from ssl will lost csrf information,
             若未指定登出的pattern，則登出只接受http連線，從https登出會導到http，以致區丟失csrf資訊-->
         <intercept-url pattern="/j_spring_security_logout" access="permitAll" requires-channel="any"/>
-        <intercept-url pattern="/changePassword" access="fullyAuthenticated" requires-channel="https"/>
+        <intercept-url pattern="/changePassword" access="fullyAuthenticated" requires-channel="any"/>
         <!--http://www.pcnet.idv.tw/pcnet/network/network_ip_addr.htm CIDR expression 表示法-->
         <intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN') and (hasIpAddress('127.0.0.1') or hasIpAddress('::1') or hasIpAddress('192.168.0.0/16') or hasIpAddress('fd3d:3d60:0682:1e59::/64'))" requires-channel="any"/>
-        <intercept-url pattern="/member/edit/**" access="hasRole('ROLE_ADMIN') and (hasIpAddress('127.0.0.1') or hasIpAddress('::1') or hasIpAddress('192.168.0.0/16') or hasIpAddress('fd3d:3d60:0682:1e59::/64'))" requires-channel="https"/>
-        <intercept-url pattern="/member/update" method="POST" access="hasRole('ROLE_ADMIN') and (hasIpAddress('127.0.0.1') or hasIpAddress('::1') or hasIpAddress('192.168.0.0/16') or hasIpAddress('fd3d:3d60:0682:1e59::/64'))" requires-channel="https"/>
+        <intercept-url pattern="/member/edit/**" access="hasRole('ROLE_ADMIN') and (hasIpAddress('127.0.0.1') or hasIpAddress('::1') or hasIpAddress('192.168.0.0/16') or hasIpAddress('fd3d:3d60:0682:1e59::/64'))" requires-channel="any"/>
+        <intercept-url pattern="/member/update" method="POST" access="hasRole('ROLE_ADMIN') and (hasIpAddress('127.0.0.1') or hasIpAddress('::1') or hasIpAddress('192.168.0.0/16') or hasIpAddress('fd3d:3d60:0682:1e59::/64'))" requires-channel="any"/>
         <intercept-url pattern="/user/**" access="authenticated" requires-channel="any"/>
         <intercept-url pattern="/json/**" access="isAuthenticated()" requires-channel="any"/>
         <intercept-url pattern="/**" access="permitAll" requires-channel="http"/>

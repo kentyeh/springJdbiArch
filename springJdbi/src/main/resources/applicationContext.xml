@@ -29,15 +29,15 @@
         <property name="plugins">
             <util:list value-type="org.jdbi.v3.core.spi.JdbiPlugin">
                 <bean class="org.jdbi.v3.sqlobject.SqlObjectPlugin"/>
-                <bean class="org.jdbi.v3.jpa.JpaPlugin"/>
             </util:list>
         </property>
     </bean>
+    <bean id="jdbiLog" class="com.github.kentyeh.context.JdbiLog"/>
     <bean class="org.springframework.beans.factory.config.MethodInvokingBean">
         <property name="targetObject" ref="jdbi"/>
         <property name="targetMethod" value="setSqlLogger"/>
         <property name="arguments">
-            <bean class="com.github.kentyeh.context.JdbiLog"/>
+            <ref bean="jdbiLog"/>
         </property>
     </bean>
     
@@ -51,9 +51,8 @@
     <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
     
     <!--Spring Cache start,comment it if you don't need 若是不需用要Spring Cache功能，把下面這部分移除-->
-    <bean id="springCacheManager" class="com.hazelcast.spring.cache.HazelcastCacheManager">
-        <constructor-arg ref="hazelcastInstance"/>
-        <property name="cacheOptions" value="defaultReadTimeout=86400"/>
+    <bean id="springCacheManager" class="org.springframework.cache.caffeine.CaffeineCacheManager">
+        <property name="cacheSpecification" value="expireAfterAccess=1h,recordStats"/>
     </bean>
     <cache:annotation-driven cache-manager="springCacheManager"/>
     <!--Spring Cache end-->

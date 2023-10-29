@@ -56,11 +56,12 @@
             </util:list>
         </property>
     </bean>
+    <bean id="jdbiLog" class="com.github.kentyeh.context.JdbiLog"/>
     <bean class="org.springframework.beans.factory.config.MethodInvokingBean">
         <property name="targetObject" ref="jdbi"/>
         <property name="targetMethod" value="setSqlLogger"/>
         <property name="arguments">
-            <bean class="com.github.kentyeh.context.JdbiLog"/>
+            <ref bean="jdbiLog"/>
         </property>
     </bean>
     <!--Enabled @Transactional-->
@@ -78,12 +79,8 @@
     <!-- Validator -->
     <bean id="validationUtils" class="com.github.kentyeh.context.ValidationUtils"/>
     
-    <!--for file upload test,檔案上傳測試用-->
-    <!--bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/-->
-    
-    <bean id="springCacheManager" class="com.hazelcast.spring.cache.HazelcastCacheManager">
-        <constructor-arg ref="hazelcastInstance"/>
-        <property name="cacheOptions" value="defaultReadTimeout=0"/>
+    <bean id="springCacheManager" class="org.springframework.cache.caffeine.CaffeineCacheManager">
+        <property name="cacheSpecification" value="expireAfterAccess=1h,recordStats"/>
     </bean>
     <cache:annotation-driven cache-manager="springCacheManager"/>
     

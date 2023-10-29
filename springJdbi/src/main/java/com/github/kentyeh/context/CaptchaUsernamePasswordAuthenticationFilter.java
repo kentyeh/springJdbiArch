@@ -1,11 +1,8 @@
 package com.github.kentyeh.context;
 
-import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,33 +20,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class CaptchaUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private static final Logger logger = LogManager.getLogger(CaptchaUsernamePasswordAuthenticationFilter.class);
+    private static final String CAPTCHA = "captcha";
     @Autowired
     @Qualifier("messageAccessor")
     MessageSourceAccessor messageAccessor;
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request,
-            HttpServletResponse response, FilterChain chain, Authentication authResult)
-            throws IOException, ServletException {
-        super.successfulAuthentication(request, response, chain, authResult);
-    }
-
-    @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationException failed)
-            throws IOException, ServletException {
-        super.unsuccessfulAuthentication(request, response, failed);
-    }
-
-    @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
             HttpServletResponse response) throws AuthenticationException {
-        String captcha = request.getParameter("captcha");
-        HttpSession session = request.getSession();
-        if (captcha == null || captcha.trim().isEmpty()) {
+        Optional<String> captcha = Optional.ofNullable(request.getParameter(CAPTCHA));
+        Optional<Object> sessionCaptcha = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA));
+        request.getSession().removeAttribute(CAPTCHA);
+        if (!captcha.isPresent() || captcha.orElse("").isBlank() || !sessionCaptcha.isPresent()) {
             throw new AuthenticationServiceException(messageAccessor.getMessage("com.github.kentyeh.context.CaptchaUsernamePasswordAuthenticationFilter.notEmptyCaptcha"));
-        } else if (!captcha.trim().equalsIgnoreCase("" + session.getAttribute("captcha"))) {
-            logger.debug("captcha:{} not equal session's captcha:{}", captcha.trim(), session.getAttribute("captcha"));
+        } else if(!captcha.orElse("").equalsIgnoreCase("" + sessionCaptcha.orElse(""))){
+            logger.debug("captcha:{} not equal session's captcha:{}", captcha, sessionCaptcha.get());
             throw new AuthenticationServiceException(messageAccessor.getMessage("com.github.kentyeh.context.CaptchaUsernamePasswordAuthenticationFilter.captchaNotValid"));
         }
         return super.attemptAuthentication(request, response);

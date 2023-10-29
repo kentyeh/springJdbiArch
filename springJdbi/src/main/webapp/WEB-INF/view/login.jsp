@@ -86,7 +86,7 @@
             </c:if>                                        
         </div>
         <form class="pure-form" action="<c:url value='j_spring_security_check'/>" method="post" onsubmit="return doSubmit(this)">
-            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+            <sec:csrfInput/>
             <fieldset>
                 <legend class="heading"><fmt:message key="login"/></legend>
                 <table>
@@ -110,7 +110,7 @@
         <table class="pure-table">
             <thead><tr><th><fmt:message key="account"/></th><th><fmt:message key="password"/></th></tr></thead>
           <c:forEach var="member" items="${members}"><tbody>
-            <tr><td>${member.account}</td><td>${member.password}</td></tr>
+            <tr><td>${member.account}</td><td>${member.account}</td></tr>
           </c:forEach></tbody>
         </table></c:if>
     </center></body>

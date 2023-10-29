@@ -1,3 +1,0 @@
-<Context antiJARLocking="true">
-    <ResourceLink name="jdbc/JNDIDS" type="javax.sql.DataSource" global="jdbc/JNDIDS"/>
-</Context>

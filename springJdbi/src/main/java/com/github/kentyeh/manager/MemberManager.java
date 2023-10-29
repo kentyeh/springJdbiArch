@@ -9,10 +9,11 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.BeansException;
+import org.jdbi.v3.core.JdbiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,79 +26,82 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberManager extends AbstractDaoManager<String, Member> {
 
     private static final Logger logger = LogManager.getLogger(MemberManager.class);
+    private MessageSourceAccessor messageAccessor;
+    private PasswordEncoder encoder;
+    private ValidationUtils vu;
+
     @Autowired
     @Qualifier("messageAccessor")
-    MessageSourceAccessor messageAccessor;
-
-    public MessageSourceAccessor getMessageAccessor() {
-        return messageAccessor;
+    public void setMessageAccessor(MessageSourceAccessor messageAccessor) {
+        this.messageAccessor = messageAccessor;
     }
 
     @Autowired
-    ValidationUtils vu;
+    public void setEncoder(PasswordEncoder encoder) {
+        this.encoder = encoder;
+    }
+
+    @Autowired
+    public void setVu(ValidationUtils vu) {
+        this.vu = vu;
+    }
 
     @Override
     public String text2Key(String text) {
         return text;
     }
 
-    protected Exception extractSQLException(Exception ex) {
-        Throwable result = ex;
-        boolean found = false;
-        while (result != null) {
-            if (result instanceof java.sql.SQLException) {
-                found = true;
-                break;
-            } else if (result.getCause() == null) {
-                break;
-            } else {
-                result = result.getCause();
-            }
-        }
-
-        return found ? (java.sql.SQLException) result : ex;
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
-    public Member findByPrimaryKey(String account) {
-        Dao dao = getContext().getBean(Dao.class);
-        Member member = dao.findMemberByPrimaryKey(account);
+    private Member postConstruct(Dao dao, Member member) {
         if (member != null) {
-            try {
-                List<Authority> auths = dao.findAuthorityByAccount(account);
-                member.setAuthorities(auths);
-            } catch (Exception ex) {
-                logger.error(ex.getMessage(), ex);
-            }
+            member.setAuthorities(dao.findAuthorityByAccount(member.getAccount()));
         }
         return member;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    private List<Member> postConstruct(Dao dao, List<Member> members) {
+        if (members != null && !members.isEmpty()) {
+            members.forEach(member -> member.setAuthorities(dao.findAuthorityByAccount(member.getAccount())));
+        }
+        return members;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = JdbiException.class)
+    public Member findByPrimaryKey(String account) {
+        try (Dao dao = getContext().getBean(Dao.class)) {
+            Member member = dao.findMemberByPrimaryKey(account);
+            return postConstruct(dao, member);
+        }
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = JdbiException.class)
     public List<Member> findAvailableUsers() throws Exception {
-        return getContext().getBean(Dao.class).findAvailableUsers();
+        try (Dao dao = getContext().getBean(Dao.class)) {
+            return postConstruct(dao, getContext().getBean(Dao.class).findAvailableUsers());
+        }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = JdbiException.class)
     public List<Member> findAllUsers() throws Exception {
-        return getContext().getBean(Dao.class).findAllUsers();
+        try (Dao dao = getContext().getBean(Dao.class)) {
+            return postConstruct(dao, dao.findAllUsers());
+        }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = JdbiException.class)
     public List<Member> findAdminUser() throws Exception {
-        try {
-            return getContext().getBean(Dao.class).findUsersByAuthoritues(Arrays.asList(new String[]{"ROLE_ADMIN", "ROLE_USER"}));
-        } catch (BeansException ex) {
-            logger.error(ex.getMessage(), ex);
-            throw ex;
+        try (Dao dao = getContext().getBean(Dao.class)) {
+            return postConstruct(dao, dao.findUsersByAuthoritues(Arrays.asList(new String[]{"ROLE_ADMIN", "ROLE_USER"})));
         }
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void newMember(Member member) throws Exception {
-        try {
-            Dao dao = getContext().getBean(Dao.class);
+        try (Dao dao = getContext().getBean(Dao.class)) {
+            Member original = dao.findMemberByPrimaryKey(member.getAccount());
+            if (original != null) {
+                throw jdbiException(messageAccessor.getMessage("exception.userAlreadyExists", member.getAccount()));
+            }
             vu.validateMessage(member, RuntimeException.class);
             dao.newMember(member);
             List<Authority> authories = member.getAuthorities();
@@ -107,48 +111,53 @@ public class MemberManager extends AbstractDaoManager<String, Member> {
                     dao.newAuthority(authority);
                 }
             }
-        } catch (BeansException ex) {
-            logger.debug("{}{}", messageAccessor.getMessage("exception.newMember"), ex.getMessage());
-            throw new RuntimeException(ex.getMessage(), extractSQLException(ex));
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = JdbiException.class)
     public boolean updateMember(Member member) throws Exception {
-        Dao dao = getContext().getBean(Dao.class);
-        vu.validateMessage(member, RuntimeException.class);
-        if (dao.updateMember(member) == 1) {
-            List<Authority> oriauthories = dao.findAuthorityByAccount(member.getAccount());
-            List<Authority> authories = member.getAuthorities();
-            List<Authority> newauthories = new ArrayList<>();
-            if (authories != null && !authories.isEmpty()) {
-                for (Authority authority : authories) {
-                    if (!oriauthories.contains(authority)) {
-                        vu.validateMessage(authority, RuntimeException.class);
-                        authority.setAid(dao.newAuthority(authority));
-                        newauthories.add(authority);
-                        oriauthories.remove(authority);
-                    } else {
-                        newauthories.add(authority);
-                        oriauthories.remove(authority);
+        try (Dao dao = getContext().getBean(Dao.class)) {
+            vu.validateMessage(member, RuntimeException.class);
+            if (dao.updateMember(member) == 1) {
+                List<Authority> oriauthories = dao.findAuthorityByAccount(member.getAccount());
+                List<Authority> authories = member.getAuthorities();
+                List<Authority> newauthories = new ArrayList<>();
+                if (authories != null && !authories.isEmpty()) {
+                    for (Authority authority : authories) {
+                        if (!oriauthories.contains(authority)) {
+                            vu.validateMessage(authority, RuntimeException.class);
+                            authority.setAid(dao.newAuthority(authority));
+                            newauthories.add(authority);
+                            oriauthories.remove(authority);
+                        } else {
+                            newauthories.add(authority);
+                            oriauthories.remove(authority);
+                        }
                     }
+                    for (Authority authority : oriauthories) {
+                        dao.removeAuthority(authority.getAid());
+                    }
+                    member.setAuthorities(newauthories);
+                } else {
+                    dao.removeAuthories(member.getAccount());
                 }
-                for (Authority authority : oriauthories) {
-                    dao.removeAuthority(authority.getAid());
-                }
-                member.setAuthorities(newauthories);
+                return true;
             } else {
-                dao.removeAuthories(member.getAccount());
+                return false;
             }
-            return true;
-        } else {
-            return false;
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = JdbiException.class)
     public int updatePass(String account, String oldPass, String newPass) throws Exception {
-        return getContext().getBean(Dao.class).changePasswd(account, oldPass, newPass);
+        try (Dao dao = getContext().getBean(Dao.class)) {
+            Member original = dao.findMemberByPrimaryKey(account);
+            if (original == null) {
+                throw jdbiException(messageAccessor.getMessage("exception.userNotExists", account));
+            } else {
+                return dao.changePasswd(account, original.getPassword(), encoder.encode(newPass));
+            }
+        }
     }
 
 }

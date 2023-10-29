@@ -28,14 +28,14 @@
                         alert("Exception prone when fetch users' data with "+statusText+":["+jqXHR.status+"]:"+jqXHR.statusText+"\n\t"+jqXHR.responseText);
                     },
                     success:function(data){
-                        if(data.total==0){
+                        if(data.length==0){
                             $("#listuser").html("");
                         }else{
                             var html="<table class=\"pure-table\"><thead><tr><th><fmt:message key="account"/></th><th><fmt:message key="name"/></th><th><fmt:message key="birthday"/></th></tr></thead><tbody>";
-                            for(var i=0;i<data.total;i++){
-                                var user = data.users[i];
+                            for(var i=0;i<data.length;i++){
+                                var user = data[i];
                                 <c:if test="${isAdmin}">
-                                html = html + "<tr><td><a class=\"pure-button pure-button-primary\" href=\"${cp}/member/edit/"+user.account+"\">&#128736;&nbsp;"+user.account+"</a></td><td>"+user.name+"</td><td>"+user.birthday+"</td></tr>";
+                                html = html + "<tr><td><a class=\"pure-button pure-button-primary\" href=\"${cp}/member/edit/"+user.account+"\">&#128736;&nbsp;"+user.account+"</a></td><td>"+user.name+"</td><td>"+user.formattedBirthday+"</td></tr>";
                                 </c:if>
                                 <c:if test="${not isAdmin}">
                                 html = html + "<tr><td>"+user.account+"</td><td>"+user.name+"</td><td>"+user.birthday+"</td></tr>";
@@ -47,38 +47,6 @@
                     }
                 });
             }</c:if><c:if test="${logined}">
-            function like(){
-                $.ajax({
-                    type : "POST",
-                    url : "${cp}/user/like",
-                    dataType : "json",
-                    headers: {"${_csrf.headerName}":"${_csrf.token}"},
-                    data: {},
-                    cache: false,
-                    error:function(jqXHR,  statusText){
-                        alert("Exception prone when fetch users like with "+statusText+":["+jqXHR.status+"]:"+jqXHR.statusText+"\n\t"+jqXHR.responseText);
-                    },
-                    success:function(data){
-                        $("#like").html(data.count);
-                    }
-                });
-            }
-            function dislike(){
-                $.ajax({
-                    type : "POST",
-                    url : "${cp}/user/dislike",
-                    dataType : "json",
-                    headers: {"${_csrf.headerName}":"${_csrf.token}"},
-                    data: {},
-                    cache: false,
-                    error:function(jqXHR,  statusText){
-                        alert("Exception prone when fetch users dislike with "+statusText+":["+jqXHR.status+"]:"+jqXHR.statusText+"\n\t"+jqXHR.responseText);
-                    },
-                    success:function(data){
-                        $("#dislike").html(data.count);
-                    }
-                });
-            }
         </c:if></script>
     </head>
     <body><c:if test="${not logined}"><h1 style="text-align:center">Server @ ${pageContext.request.localAddr}</h1></c:if>
@@ -87,10 +55,8 @@
                 <tr>
                     <td style="max-width: 200pt"><a href="${cp}/changePassword" class="pure-button pure-button-primary">
                             &#128273;&nbsp;<fmt:message key="changePassword"/></a>
-                            &nbsp;<button class="pure-button pure-button-primary" onclick="like()">&#128077;<span id="like">${like}</span></button>
                     </td>
                     <td style="text-align: right">
-                        <button class="pure-button pure-button-primary" onclick="dislike()">&#128078;<span id="dislike">${dislike}</span></button>&nbsp;
                         <form action="${cp}/j_spring_security_logout" method="post" style="display: inline">
                             <!--<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>-->
                             <sec:csrfInput />

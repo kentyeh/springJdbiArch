@@ -1,9 +1,9 @@
 package com.github.kentyeh.context;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ValidatorFactory;
 import java.util.Collections;
 import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.ValidatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;

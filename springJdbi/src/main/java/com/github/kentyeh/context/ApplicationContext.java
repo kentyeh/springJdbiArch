@@ -1,12 +1,15 @@
 package com.github.kentyeh.context;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.kentyeh.model.Dao;
-import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import javax.servlet.ServletContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.jdbi.v3.core.Jdbi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  *
@@ -22,51 +25,51 @@ import org.springframework.session.hazelcast.config.annotation.web.http.EnableHa
  */
 @Configuration
 @ImportResource("classpath:applicationContext.xml")
-    @EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = 86400)
 public class ApplicationContext {
 
-    private static final Logger logger = LogManager.getLogger(ApplicationContext.class);
     private Jdbi jdbi;
-    private ServletContext servletContext;
+    private ValidatorFactory validatorFactory;
 
     @Autowired
     public void setJdbi(Jdbi jdbi) {
         this.jdbi = jdbi;
-        this.jdbi.setSqlLogger(jdbiLog());
     }
 
     @Autowired
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
+    public void setValidator(final ValidatorFactory validator) {
+        this.validatorFactory = validator;
     }
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public JdbiLog jdbiLog() {
-        return new JdbiLog();
+    public Validator validator() {
+        return validatorFactory.getValidator();
+    }
+
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+    public ObjectMapper objectMapper() {
+        return JsonMapper
+                .builder().addModule(new JavaTimeModule())
+                .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
+                .serializationInclusion(JsonInclude.Include.NON_NULL)
+                .build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new Sha512PasswordEncoder();
     }
 
     @Bean(destroyMethod = "close")
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public Dao dao() {
         return jdbi.open().attach(Dao.class);
-    }
-
-    @Bean(destroyMethod = "shutdown")
-    public HazelcastInstance hazelcastInstance() {
-        HazelcastInstance hazelcastInstance = (HazelcastInstance) servletContext.getAttribute("hazelcastInstance");
-        if (hazelcastInstance == null) {
-            logger.debug("Create hazelcastInstance");
-            hazelcastInstance = Hazelcast.newHazelcastInstance(clientConfig());
-            servletContext.setAttribute("hazelcastInstance", hazelcastInstance);
-            return hazelcastInstance;
-        } else {
-            return hazelcastInstance;
-        }
-    }
-
-    @Bean
-    public Config clientConfig() {
-        return SpringSessionListener.createHazelcastConfig(servletContext);
     }
 }

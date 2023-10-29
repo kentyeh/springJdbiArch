@@ -1,10 +1,10 @@
 package com.github.kentyeh.model;
 
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
-import javax.validation.constraints.NotNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 

@@ -78,7 +78,7 @@ public interface Dao extends SqlObject, AutoCloseable {
 
     @SqlQuery("select count(8) from information_schema.sessions")
     int countSessions();
-    
+
     @SqlQuery("SELECT member FROM hzmembers")
     List<String> queryHzMembers();
 

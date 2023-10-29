@@ -10,37 +10,15 @@
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
-    <mvc:annotation-driven content-negotiation-manager="contentNegotiationManager" validator="validator">
-        <mvc:argument-resolvers>
-            <!-- For mobile -->
-            <bean class="com.github.kentyeh.context.DeviceWebArgumentResolver"/>
-        </mvc:argument-resolvers>
-    </mvc:annotation-driven>
-    <bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
-        <property name="favorPathExtension" value="false" />
-        <property name="favorParameter" value="false" />
-        <property name="ignoreAcceptHeader" value="false" />
-	<property name="defaultContentType" value="text/html"/>
-	<property name="mediaTypes" ><!--當favorParameter時用於指定mediaType參數所對應的AcceptType-->
-            <map key-type="java.lang.String" value-type="java.lang.String">
-	        <entry key="json" value="application/json" />
-		<entry key="xml" value="application/xml" />
-            </map>
-        </property>
-    </bean>
+    <mvc:annotation-driven validator="validator"/>
+    
     <mvc:interceptors>
         <!-- For i18n -->
         <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" p:paramName="#{appProperies['i18n.localeParam']}"/>
-        <!-- For mobile -->
-        <bean class="org.springframework.mobile.device.DeviceResolverHandlerInterceptor" />
     </mvc:interceptors>
     
     <!--Validator--> 
-    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
-        <property name="validationMessageSource">
-            <ref bean="messageSource"/>
-        </property>
-    </bean>
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
     
     <!-- i18n start-->
     <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"/>
@@ -60,7 +38,7 @@
     </mvc:resources>
     
     <!--enable multipart upload ,啟用檔案上傳-->
-    <!--bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"-->
+    <!--bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver"-->
     <!--max upload 檔案最大上傳1M
     <property name="maxUploadSize" value="1048576"/>-->
     <!--/bean-->

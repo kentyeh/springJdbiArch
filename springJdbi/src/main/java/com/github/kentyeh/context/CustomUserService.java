@@ -1,23 +1,22 @@
 package com.github.kentyeh.context;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.kentyeh.manager.MemberManager;
-import com.github.kentyeh.model.Authority;
 import com.github.kentyeh.model.Member;
-import java.io.StringReader;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,63 +27,72 @@ import org.springframework.stereotype.Service;
 public class CustomUserService implements UserDetailsService, AuthenticationUserDetailsService<UsernamePasswordAuthenticationToken> {
 
     private static final Logger logger = LogManager.getLogger(CustomUserService.class);
+    private ObjectMapper objectMapper;
+    private PasswordEncoder encoder;
+    private MessageSourceAccessor messageAccessor;
+    private MemberManager memberManager;
+
+    @Autowired
+    protected void setEncoder(PasswordEncoder encoder) {
+        this.encoder = encoder;
+    }
 
     @Autowired
     @Qualifier("messageAccessor")
-    MessageSourceAccessor messageAccessor;
+    protected void setMessageAccessor(MessageSourceAccessor messageAccessor) {
+        this.messageAccessor = messageAccessor;
+    }
 
     @Autowired
-    private MemberManager memberManager;
+    protected void setMemberManager(MemberManager memberManager) {
+        this.memberManager = memberManager;
+    }
+
+    @Autowired
+    protected void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
+    protected String jsonAsText(JsonNode json, String attr) {
+        JsonNode jn = json.get(attr);
+        return jn == null || jn instanceof com.fasterxml.jackson.databind.node.NullNode
+                ? "" : jn.asText();
+    }
 
     /**
-     * @param account
+     * @param jsonstring
      * @return
      */
     @Override
-    public UserDetails loadUserByUsername(String account) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String jsonstring) throws UsernameNotFoundException {
         //Find user data,找到用戶資料
-        try {
-            String[] vals;
-            if (account.startsWith("[") && account.endsWith("]") && account.contains(",")) {
-                try (JsonReader jsonReader = Json.createReader(new StringReader(account))) {
-                    JsonArray jsonary = jsonReader.readArray();
-                    vals = new String[jsonary.size()];
-                    for (int i = 0; i < jsonary.size(); i++) {
-                        vals[i] = jsonary.getString(i);
-                    }
+        jsonstring = jsonstring == null ? "" : jsonstring.trim();
+        if (jsonstring.startsWith("{") && jsonstring.endsWith("}")) {
+            try {
+                logger.debug("loadUserByUsername({})", jsonstring);
+                JsonNode json = objectMapper.readValue(jsonstring, JsonNode.class);
+                String account = jsonAsText(json, "account");
+                String passwd = jsonAsText(json, "passwd");
+                Member member = memberManager.findByPrimaryKey(account);
+                if (member == null || !encoder.matches(passwd, member.getPassword())) {
+                    throw new UsernameNotFoundException(messageAccessor.getMessage("exception.invalidCredentials"));
+                } else if (!"Y".equals(member.getEnabled())) {
+                    throw new UsernameNotFoundException(messageAccessor.getMessage("com.github.kentyeh.context.CustomUserService.userNotEnabled"));
+                } else {
+                    return new CustomUserInfo(member);
                 }
-            } else {
-                vals = account.split(",");
+            } catch (JsonProcessingException ex) {
+                throw new UsernameNotFoundException(messageAccessor.getMessage("com.github.kentyeh.context.CustomUserService.userNotEnabled"), ex);
             }
-            logger.debug("loadUserByUsername({})", account);
-            Member member = memberManager.findByPrimaryKey(vals[0]);
-            //Decide user's roles,自行決定如何給角色
+        } else {
+            Member member = memberManager.findByPrimaryKey(jsonstring);
             if (member == null) {
                 throw new UsernameNotFoundException(messageAccessor.getMessage("com.github.kentyeh.context.CustomUserService.userNotEnabled"));
             } else if (!"Y".equals(member.getEnabled())) {
                 throw new UsernameNotFoundException(messageAccessor.getMessage("com.github.kentyeh.context.CustomUserService.userNotEnabled"));
-            } else if (vals.length > 1 && !vals[1].equals(member.getPassword())) {//it could be load by rememberMe service
-                throw new UsernameNotFoundException(messageAccessor.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials"));
-            }
-            StringBuilder roles = null;
-            for (Authority authority : member.getAuthorities()) {
-                if (roles == null) {
-                    roles = new StringBuilder(authority.getAuthority());
-                } else {
-                    roles.append(",").append(authority.getAuthority());
-                }
-            }
-            logger.debug("{}'s roles is {}", member.getAccount(), roles);
-            if (roles == null) {
-                return new CustomUserInfo(member, "");
             } else {
-                return new CustomUserInfo(member, roles.toString());
+                return new CustomUserInfo(member);
             }
-        } catch (UsernameNotFoundException ex) {
-            throw ex;
-        } catch (NoSuchMessageException ex) {
-            logger.error(ex.getMessage(), ex);
-            throw new UsernameNotFoundException(ex.getMessage(), ex);
         }
     }
 
@@ -95,6 +103,13 @@ public class CustomUserService implements UserDetailsService, AuthenticationUser
      */
     @Override
     public UserDetails loadUserDetails(UsernamePasswordAuthenticationToken token) throws UsernameNotFoundException {
-        return loadUserByUsername(token.getName());
+        ObjectNode json = objectMapper.createObjectNode();
+        json.put("account", token.getName());
+        json.put("passwd", token.getCredentials().toString());
+        try {
+            return loadUserByUsername(objectMapper.writeValueAsString(json));
+        } catch (JsonProcessingException ex) {
+            throw new UsernameNotFoundException(messageAccessor.getMessage("com.github.kentyeh.context.CustomUserService.userNotEnabled"));
+        }
     }
 }

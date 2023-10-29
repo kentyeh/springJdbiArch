@@ -4,11 +4,9 @@ import com.github.kentyeh.model.Member;
 import java.lang.annotation.AnnotationFormatError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.IsEqual.equalTo;
+import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -23,9 +21,18 @@ import org.testng.annotations.Test;
 public class TestModel extends AbstractTestNGSpringContextTests {
 
     private static final Logger logger = LogManager.getLogger(TestModel.class);
+    private PasswordEncoder encoder;
+    private TestMemberManager memberManager;
 
     @Autowired
-    private TestMemberManager memberManager;
+    public void setEncoder(PasswordEncoder encoder) {
+        this.encoder = encoder;
+    }
+
+    @Autowired
+    public void setMemberManager(TestMemberManager memberManager) {
+        this.memberManager = memberManager;
+    }
 
     @Test(expectedExceptions = {RuntimeException.class, AnnotationFormatError.class})
     public void testDuplicateMember() throws Exception {
@@ -48,20 +55,20 @@ public class TestModel extends AbstractTestNGSpringContextTests {
         member.setBirthday(new java.util.Date());
         memberManager.newMember(member);
         member = memberManager.findByPrimaryKey("newbie");
-        assertThat("new Member failed", member, is(notNullValue()));
+        Assertions.assertThat(member).isNotNull();
 
     }
 
     @Test
     public void testUpdateMember() throws Exception {
         Member member = memberManager.findByPrimaryKey("newbie");
-        assertThat("new Member failed", member, is(notNullValue()));
+        Assertions.assertThat(member).isNotNull();
         member.setName("Junior");
         member.setPassword("HelloWorld!");
-        assertThat("Update member failed", memberManager.updateMember(member), is(true));
+        Assertions.assertThat(memberManager.updateMember(member));
         member = memberManager.findByPrimaryKey("newbie");
-        assertThat("Update member failed", member.getName(), is("Junior"));
-        assertThat("Update member failed", member.getPassword(), is("HelloWorld!"));
+        Assertions.assertThat(member.getName()).isEqualTo("Junior");
+        Assertions.assertThat(encoder.matches("HelloWorld!", member.getPassword()));
     }
 
     @Test
@@ -74,6 +81,6 @@ public class TestModel extends AbstractTestNGSpringContextTests {
             logger.error(e.getMessage(), e);
         }
         member = memberManager.findByPrimaryKey("admin");
-        assertThat("DB not rollback!", member.getPassword(), is(equalTo(orignPass)));
+        Assertions.assertThat(member.getPassword()).isEqualTo(orignPass);
     }
 }

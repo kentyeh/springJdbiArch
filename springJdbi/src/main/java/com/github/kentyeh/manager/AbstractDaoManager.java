@@ -1,6 +1,7 @@
 package com.github.kentyeh.manager;
 
 import java.beans.PropertyEditorSupport;
+import org.jdbi.v3.core.JdbiException;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -55,6 +56,50 @@ public abstract class AbstractDaoManager<K, E> extends PropertyEditorSupport imp
             setValue(StringUtils.hasText(text) ? findByPrimaryKey(text2Key(text)) : null);
         } catch (RuntimeException e) {
             setValue(null);
+        }
+    }
+
+    protected Exception extractSQLException(Exception ex) {
+        Throwable result = ex;
+        boolean found = false;
+        while (result != null) {
+            if (result instanceof java.sql.SQLException) {
+                found = true;
+                break;
+            } else if (result.getCause() == null) {
+                break;
+            } else {
+                result = result.getCause();
+            }
+        }
+
+        return found ? (java.sql.SQLException) result : ex;
+    }
+
+    protected JdbiException jdbiException(String msg) {
+        return new JdbiExceptionImpl(msg);
+    }
+
+    protected JdbiException jdbiException(String msg, Throwable cause) {
+        return new JdbiExceptionImpl(msg, cause);
+    }
+
+    protected JdbiException jdbiException(Throwable cause) {
+        return new JdbiExceptionImpl(cause);
+    }
+
+    private static class JdbiExceptionImpl extends JdbiException {
+
+        public JdbiExceptionImpl(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public JdbiExceptionImpl(String message) {
+            super(message);
+        }
+
+        public JdbiExceptionImpl(Throwable cause) {
+            super(cause);
         }
     }
 }

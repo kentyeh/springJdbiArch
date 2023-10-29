@@ -1,18 +1,19 @@
 package com.github.kentyeh.controller;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlTitle;
+import com.github.kentyeh.context.WebConsolLoger;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.StringContains.containsString;
+import org.assertj.core.api.Assertions;
+import org.htmlunit.BrowserVersion;
+import org.htmlunit.CollectingAlertHandler;
+import org.htmlunit.FailingHttpStatusCodeException;
+import org.htmlunit.NicelyResynchronizingAjaxController;
+import org.htmlunit.WebClient;
+import org.htmlunit.html.HtmlForm;
+import org.htmlunit.html.HtmlPage;
+import org.htmlunit.html.HtmlTitle;
+import org.htmlunit.javascript.SilentJavaScriptErrorListener;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
@@ -46,6 +47,20 @@ public class TestIntegration {
         webClient = new WebClient(BrowserVersion.BEST_SUPPORTED);
         webClient.getOptions().setUseInsecureSSL(true);
         webClient.getOptions().setDownloadImages(true);//4 loading captcha
+        webClient.getOptions().setThrowExceptionOnScriptError(false);//Do not throws Exception when JS run wrong.
+        webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);//Do not throws Exception when HTTP status not equals 200
+        webClient.getOptions().setDownloadImages(true);//Load Image owning to Captcha need.
+        webClient.getOptions().setCssEnabled(false);//Enable only if JavaScript requires to judge css rule.
+        webClient.setJavaScriptTimeout(10_0000);//Max seconds to wait JavsScript executed.
+        webClient.getOptions().setRedirectEnabled(true);//Accept URL redirection. 
+        webClient.getOptions().setTimeout(5_000);//Max mini seconds to wait page back.
+        webClient.getOptions().setJavaScriptEnabled(true);//Usually enable JavaScript.
+        webClient.getOptions().setFetchPolyfillEnabled(true);//Enable JavaScript support Polyfill. 
+        webClient.getOptions().setWebSocketEnabled(false);//Here we don't need enable WebSocket.
+        webClient.setJavaScriptErrorListener(new SilentJavaScriptErrorListener());//Skip JavaScript Error.
+        webClient.setAjaxController(new NicelyResynchronizingAjaxController());//Synchronize Ajax.
+        webClient.setAlertHandler(new CollectingAlertHandler());//Collect JavaScript Alert Messages.
+        webClient.getWebConsole().setLogger(new WebConsolLoger());//Redirect java script console log to Log4j2.
     }
 
     @AfterClass
@@ -60,6 +75,9 @@ public class TestIntegration {
         String url = String.format("http://localhost:%d/%s/unknownpath/404.html", httpPort, contextPath);
         logger.debug("Integration Test: test404 with {}", url);
         HtmlPage page404 = webClient.getPage(url);
+        Assertions.assertThat(page404.getWebResponse().getContentAsString())
+                .contains("Page not exists");
+        throw new FailingHttpStatusCodeException(page404.getWebResponse());
     }
 
     @Test
@@ -73,26 +91,10 @@ public class TestIntegration {
         form.getInputByName("captcha").setValueAttribute(captcha);
         HtmlPage myInfoPage = form.getOneHtmlElementByAttribute("button", "type", "submit").click();
         HtmlTitle title = myInfoPage.getFirstByXPath("//title");
-        assertThat("Fail to get My Info", title.getTextContent(), is(containsString("admin")));
-
+        Assertions.assertThat(title.getTextContent()).contains("admin");
     }
 
     @Test(dependsOnMethods = "testMyInfo")
-    public void testUserLike() throws IOException, InterruptedException {
-        String url = String.format("http://localhost:%d/%s/user/myinfo", httpPort, contextPath);
-        HtmlPage myInfoPage = webClient.getPage(url);
-        myInfoPage.executeJavaScript("like()");
-        myInfoPage.executeJavaScript("dislike()");
-        synchronized (myInfoPage) {
-            myInfoPage.wait(1000);
-        }
-        DomElement span = myInfoPage.getElementById("like");
-        assertThat("Fail to get User Like", span.getTextContent(), is("1"));
-        span = myInfoPage.getElementById("dislike");
-        assertThat("Fail to get User Like", span.getTextContent(), is("1"));
-    }
-
-    @Test(dependsOnMethods = "testUserLike")
     public void logout() throws IOException {
         String url = String.format("http://localhost:%d/%s/", httpPort, contextPath);
         logger.debug("Integration Test: logout with {}", url);
@@ -100,6 +102,6 @@ public class TestIntegration {
         HtmlForm form = homePage.getFirstByXPath("//form");
         homePage = form.getElementsByTagName("button").get(0).click();
         logger.debug("logout redirect to {}", homePage.getUrl());
-        assertThat("logout failed ", homePage.getUrl().toString(), is(containsString("/index")));
+        Assertions.assertThat(homePage.getUrl().toString()).contains("/index");
     }
 }

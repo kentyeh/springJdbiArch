@@ -21,9 +21,9 @@ public class CustomUserInfo extends User {
         return member;
     }
 
-    public CustomUserInfo(Member member, String roles) {
-        super(member.getAccount(), member.getPassword(), true, true, true, true, roles == null || roles.isEmpty()
-                ? Collections.<GrantedAuthority>emptyList() : AuthorityUtils.commaSeparatedStringToAuthorityList(roles));
+    public CustomUserInfo(Member member) {
+        super(member.getAccount(), member.getPassword(), true, true, true, true, member.getRoles().isBlank()
+                ? Collections.<GrantedAuthority>emptyList() : AuthorityUtils.commaSeparatedStringToAuthorityList(member.getRoles()));
         this.member = member;
     }
 
@@ -39,7 +39,7 @@ public class CustomUserInfo extends User {
 
     @Override
     public String getPassword() {
-        return "{noop}" + (member == null ? super.getPassword() : member.getPassword());
+        return member == null ? super.getPassword() : member.getPassword();
     }
 
     @Override

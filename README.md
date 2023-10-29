@@ -3,13 +3,18 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.kentyeh/springJdbiArch/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.kentyeh/springJdbiArch)
 
 
-Sample arthetype form [Spring](http://projects.spring.io/spring-framework/),[spring security](http://projects.spring.io/spring-security/) , [JDBI3](http://jdbi.org/) and [Hazelcast IMDB](https://docs.hazelcast.com/imdg/4.2/index.html).
+Sample archetype form [Spring](https://spring.io/projects/spring-framework),[Spring Security](https://spring.io/projects/spring-security) and [JDBI3](http://jdbi.org/).
+
+### Requirement ###
+
+Require JDK 17+ AND [Maven](https://maven.apache.org/) preinstalled.
 
 ### Usage ###
+
 generate sample project:
 ```
 mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
--DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=3.0.1
+-DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=4.0.0
 ```
 #### After generation ####
 * Test Program
@@ -25,7 +30,7 @@ mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
 * Test and generate document
 
   ```
-  mvn integration-test  site
+  mvn verify site
   ```
   
   Final site report generated at target/site/index.html.
@@ -33,19 +38,23 @@ mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
 * running program
 
   ```
-  mvn jetty:run &
+  mvn jetty:run
   ```
 
+then open [http://localhost:8080/{project.artifactId}/](http://localhost:8080/springJdbi/) to see the pages. In the meantime, the [H2 database](https://h2database.com/html/main.html) is available for connecting by `jdbc:h2:tcp://localhost/{project.artifactId}` with `sa/{project.artifactI}`
 ### MISC
 
-* Find your code problems after compiled.(by [FindBugs](http://findbugs.sourceforge.net/).
+* Analysis your code problems after compiled.(by [SpotBugs](https://spotbugs.github.io/).)
 
   ```
-  mvn test-compile findbugs:gui
+  mvn compile spotbugs:check spotbugs:gui
+  ```
+  
+* Deploy Web Application
+
+  ```bash
+  mvn package
   ```
 
-* It is suitable for small-scale clusters. If you decide to deploy to several nodes (an odd number is more helpful to an even number), open pom.xml and fill in the node's IP into <hazelcastMembers>
+  Find war file inner `${project.basedir}/target` folder, before deployment, It is required to build a `jndi/${project.artifactId}`database resource in your web container.
 
-  ```
-  <hazelcastMembers>192.168.0.100,192.168.0.101,192.168.0.102</hazelcastMembers>
-  ``

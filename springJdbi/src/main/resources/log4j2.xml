@@ -1,35 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="warn" name="${project.artifactId}" verbose="false" monitorInterval="30">
-        <Appenders>
-                <Console name="console">
-                        <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %highlight{%-5level} %class{1.}.%M(%L) - %highlight{%msg}%n%ex{full}%n" />
-                </Console>
-                <RollingRandomAccessFile name="${project.artifactId}-Rolling" fileName="${sys:catalina.home}/logs/${project.artifactId}.log"
-                        filePattern="${sys:catalina.home}/logs/${project.artifactId}-%d{MM-dd-yyyy}-%i.log.gz">
-                        <PatternLayout>
-                                <pattern>%d %p [%t] %C{1.}.%M(%L) %m%n%ex{full}%n</pattern>
-                        </PatternLayout>
-                        <Policies>
-                                <TimeBasedTriggeringPolicy />
-                                <SizeBasedTriggeringPolicy size="250 MB" />
-                        </Policies>
-                </RollingRandomAccessFile>
-                <Async name="Async-${project.artifactId}-Rolling">
-                    <AppenderRef ref="${project.artifactId}-Rolling"/>
-                </Async>
-        </Appenders>
-        <Loggers>
-                <Logger name="org.springframework.session.hazelcast" level="DEBUG" additivity="false">
-                        <AppenderRef ref="console" />
-                        <AppenderRef ref="${project.artifactId}-Rolling" />
-                </Logger>
-                <Logger name="com.github.kentyeh" level="DEBUG" additivity="false">
-                        <AppenderRef ref="console" />
-                        <AppenderRef ref="${project.artifactId}-Rolling" />
-                </Logger>
-                <Root level="info">
-                        <AppenderRef ref="console" />
-                        <AppenderRef ref="${project.artifactId}-Rolling" />
-                </Root>
-        </Loggers>
+    <Properties>
+        <property name="DEV_HOME" value="${project.build.directory}" />
+        <property name="LOG_HOME" value="${sys:catalina.home:-${DEV_HOME}}/logs" />
+    </Properties> 
+    <Appenders>
+        <Console name="console">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %highlight{%-5level} %class{1.}.%M(%L) - %highlight{%msg}%n%ex{full}%n" />
+        </Console>
+        <RollingRandomAccessFile name="${project.artifactId}-Rolling" fileName="${LOG_HOME}/${project.artifactId}.log"
+                                 filePattern="${LOG_HOME}/${project.artifactId}-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout>
+                <pattern>%d %p [%t] %C{1.}.%M(%L) %m%n%ex{full}%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="250 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="30">
+                <Delete basePath="${LOG_HOME}/" maxDepth="2">
+                    <IfFileName glob="*/${project.artifactId}-*.log.gz">
+                        <IfLastModified age="P30D">
+                            <IfAny>
+                                <IfAccumulatedFileSize exceeds="50 MB" />
+                                <IfAccumulatedFileCount exceeds="10" />
+                            </IfAny>
+                        </IfLastModified>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+    </Appenders>
+    <Loggers>
+<!--        <Logger name="org.springframework.web" level="DEBUG" additivity="false" includeLocation="true">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="${project.artifactId}-Rolling" />
+        </Logger>
+        <Logger name="org.springframework.security" level="TRACE" additivity="false" includeLocation="true">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="${project.artifactId}-Rolling" />
+        </Logger>-->
+        <Logger name="com.github.kentyeh" level="DEBUG" additivity="false">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="${project.artifactId}-Rolling" />
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="${project.artifactId}-Rolling" />
+        </Root>
+    </Loggers>
 </Configuration>

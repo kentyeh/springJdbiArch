@@ -1,5 +1,6 @@
 package com.github.kentyeh.cucumber;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.kentyeh.manager.TestMemberManager;
 import com.github.kentyeh.model.Member;
 import io.cucumber.java.Before;
@@ -9,9 +10,7 @@ import io.cucumber.java.en.When;
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
+import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -21,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import org.springframework.web.context.WebApplicationContext;
@@ -37,11 +36,25 @@ public class DemoFeatureStepDef {
 
     private static final Logger logger = LogManager.getLogger(DemoFeatureStepDef.class);
     private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
+
+    private TestMemberManager memberManager;
+    WebApplicationContext wac;
 
     @Autowired
-    private TestMemberManager memberManager;
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Autowired
-    WebApplicationContext wac;
+    public void setMemberManager(TestMemberManager memberManager) {
+        this.memberManager = memberManager;
+    }
+
+    @Autowired
+    public void setWac(WebApplicationContext wac) {
+        this.wac = wac;
+    }
 
     @Before
     public void setup() {
@@ -60,7 +73,10 @@ public class DemoFeatureStepDef {
 
     @Then("^return headcount should equals all user's amount\\.$")
     public void testUsersInfo() throws Exception {
-        mockMvc.perform(post("/admin/users").with(user("admin").roles("ADMIN"))).andDo(print()).andExpect(jsonPath("$.total", is(equalTo(memberManager.countUsers()))));
+        MvcResult mvcResult = mockMvc.perform(post("/admin/users").with(user("admin")
+                .roles("ADMIN"))).andDo(print()).andReturn();
+        Member[] members = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Member[].class);
+        Assertions.assertThat(members.length).isEqualTo(memberManager.countUsers());
     }
 
     @Given("^acouunt user \"([^\"]*)\" has already been authorized\\.$")
@@ -77,7 +93,7 @@ public class DemoFeatureStepDef {
     public void displayPersonalInfoTo(String user) throws Throwable {
         MvcResult mvcResult = mockMvc.perform(post("/user/myinfo").principal(new TestingAuthenticationToken(user, null))).andDo(print()).andReturn();
         Member member = (Member) mvcResult.getRequest().getAttribute("member");
-        assertThat("Display MyInfo failed!", member.getAccount(), is(equalTo(user)));
+        Assertions.assertThat(member.getAccount()).isEqualTo(user);
     }
 
 }
