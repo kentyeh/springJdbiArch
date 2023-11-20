@@ -4,7 +4,7 @@
 
     <groupId>com.github.kentyeh</groupId>
     <artifactId>springJdbi</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
     <packaging>war</packaging>
 
     <name>springJdbi</name>
@@ -330,7 +330,7 @@
         <dependency>
             <groupId>org.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>3.7.0</version>
+            <version>3.8.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -672,38 +672,6 @@
                 </dependencies>
                 <configuration>
                     <locales>zh_TW</locales>
-                    <reportPlugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-project-info-reports-plugin</artifactId>
-                            <version>3.4.5</version>
-                            <configuration>
-                                <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                            </configuration>
-                            <reportSets>
-                                <reportSet>
-                                    <reports>
-                                        <report>index</report>
-                                        <report>plugin-management</report><!--專案外掛程式管理 (Project Plugin Management)-->
-                                        <!--report>distribution-management</report>  發佈管理-->
-                                        <report>scm</report><!--原始碼貯藏庫 (Source Repository)-->
-                                        <!--report>mailing-list</report>  專案郵件列表 (Project Mailing Lists)-->
-                                        <!--report>issue-tracking</report> 問題追蹤 (Issue Tracking)-->
-                                        <!--report>cim</report>  持續整合 (Continuous Integration)-->
-                                        <report>plugins</report><!--專案建構外掛程式 (Project Build Plugins)-->
-                                        <report>license</report><!--專案授權許可 (Project License)-->
-                                        <report>project-team</report><!--團隊 (The Team)-->
-                                        <report>summary</report><!--專案摘要 (Project Summary)-->
-                                        <report>dependencies</report> <!--專案依賴 (Project Dependencies)-->
-                                        <report>dependency-management</report>
-                                        <report>dependency-convergence</report><!--**-->
-                                        <report>dependency-info</report><!--**-->
-                                        <report>modules</report>
-                                    </reports>
-                                </reportSet>
-                            </reportSets>
-                        </plugin>
-                    </reportPlugins>
                 </configuration>
             </plugin>
             <plugin>
@@ -741,6 +709,14 @@
     </build>
     <reporting>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.4.5</version>
+                <configuration>
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
