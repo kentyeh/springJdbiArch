@@ -1,4 +1,4 @@
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.1.dtd" >
 <suite thread-count="5" configfailurepolicy="skip" verbose="0" name="${project.artifactId}TestSuit" skipfailedinvocationcounts="false" annotations="JDK">
     <test verbose="1" name="Web Test" junit="false">
         <classes>

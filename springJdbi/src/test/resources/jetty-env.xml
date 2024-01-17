@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
-<Configure class="org.eclipse.jetty.webapp.WebAppContext">
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "https://eclipse.dev/jetty/configure_${ee.ver}_0.dtd">
+<Configure id="wac" class="org.eclipse.jetty.ee${ee.ver}.webapp.WebAppContext">
     <!--Build H2 TCP Server-->
     <New id="h2Server" class="org.h2.tools.Server">
         <Arg>
@@ -48,10 +48,11 @@
         </Call>
     </New>
     <New  class="org.eclipse.jetty.plus.jndi.Resource">
+        <Arg><Ref refid="wac"/></Arg>
         <Arg>${jndi.dsname}</Arg>
         <Arg>
             <New class="org.apache.openejb.resource.jdbc.dbcp.BasicManagedDataSource">
-                <Arg>${jndi.name}</Arg>
+                <Arg>${jndi.dsname}</Arg>
                 <Set name="transactionManager">
                     <Ref refid="tm"/>
                 </Set>
@@ -62,7 +63,8 @@
             </New>
         </Arg>
     </New>
-    <New id="tx" class="org.eclipse.jetty.plus.jndi.Transaction">
+    <New id="tx" class="org.eclipse.jetty.ee${ee.ver}.plus.jndi.Transaction">
+        <Arg>ee${ee.ver}</Arg>
         <Arg>
             <New class="org.apache.openejb.core.CoreUserTransaction">
                 <Arg>

@@ -14,7 +14,7 @@ Require JDK 17+ AND [Maven](https://maven.apache.org/) preinstalled.
 generate sample project:
 ```
 mvn archetype:generate -DarchetypeGroupId=com.github.kentyeh \
--DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=4.0.0
+-DarchetypeArtifactId=springJdbiArch -DarchetypeVersion=4.0.3
 ```
 #### After generation ####
 * Test Program
